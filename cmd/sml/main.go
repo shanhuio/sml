@@ -1,4 +1,4 @@
-package sml
+package main
 
 import (
 	"shanhu.io/sml"
