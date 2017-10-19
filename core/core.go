@@ -3,7 +3,7 @@ package core
 import (
 	"encoding/json"
 
-	"shanhu.io/pisces/objects"
+	"shanhu.io/misc/hashutil"
 )
 
 // Core is the core of a build result.
@@ -21,5 +21,5 @@ func (c *Core) Hash() string {
 		panic(err)
 	}
 
-	return objects.Hash(bs)
+	return hashutil.Hash(bs)
 }
