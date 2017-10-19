@@ -6,9 +6,6 @@ import (
 	"shanhu.io/pisces/objects"
 )
 
-// Version is the version of smallrepo's super repo core.
-const Version = "0.1"
-
 // Core is the core of a build result.
 type Core struct {
 	Version   string
