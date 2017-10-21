@@ -21,6 +21,16 @@ func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
 	return strings.TrimSpace(ret), nil
 }
 
+func execAll(env *goenv.ExecEnv, srcDir string, lines [][]string) error {
+	for _, args := range lines {
+		if err := env.Exec(srcDir, args[0], args[1:]...); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 	srcDir := env.SrcDir(repo)
 	if exist, err := env.IsDir(srcDir); err != nil {
@@ -58,8 +68,11 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 			return err
 		}
 		if isAncestor {
-            return nil
-        }
+			// merge will be a noop, just update smlrepo branch.
+			return env.Exec(
+				srcDir, "git", "branch", "-q", "-f", "smlrepo", commit,
+			)
+		}
 
 		fmt.Printf(
 			"[%s -> %s] %s - %s\n",
@@ -68,15 +81,11 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 	}
 
 	// fetch to smlrepo branch and then merge
-	for _, args := range [][]string{
+	return execAll(env, srcDir, [][]string{
 		{"git", "fetch", "-q", src},
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
-	} {
-		if err := env.Exec(srcDir, args[0], args[1:]...); err != nil {
-			return err
-		}
-	}
+	})
 
 	return nil
 }
