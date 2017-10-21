@@ -11,62 +11,76 @@ import (
 	"shanhu.io/sml/goenv"
 )
 
-func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
-	// TODO(h8liu): check branch commit first, if already synced, do nothing.
-	var err error
-	curCommit := ""
+func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
+	ret, err := env.StrOut(
+		srcDir, "git", "show", "HEAD", "-s", "--format=%H",
+	)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(ret), nil
+}
 
-	xa := func(dir string, name string, args ...string) {
-		if err != nil {
-			return
-		}
-		err = env.Exec(dir, name, args...)
-	}
-	x := func(name string, args ...string) {
-		xa("", name, args...)
-	}
+func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
+	curCommit := ""
 
 	srcDir := env.SrcDir(repo)
 	if exist, err := env.IsDir(srcDir); err != nil {
 		return err
 	} else if !exist {
-		x("mkdir", "-p", srcDir)
+		if err := env.Exec("", "mkdir", "-p", srcDir); err != nil {
+			return err
+		}
 	}
 
 	srcGitDir := filepath.Join(srcDir, ".git")
 	if exist, err := env.IsDir(srcGitDir); err != nil {
 		return err
 	} else if !exist {
-		xa(srcDir, "git", "init", "-q")
+		if err := env.Exec(srcDir, "git", "init", "-q"); err != nil {
+			return err
+		}
+
+		fmt.Printf(
+			"[new %s] %s -%s\n", idutil.Short(commit), repo, src,
+		)
 	} else {
-		curCommit, err = env.StrOut(
-			srcDir, "git", "show", "HEAD", "-s", "--format=%H",
+		cur, err := currentCommit(env, srcDir)
+		if err != nil {
+			return err
+		}
+		if cur == commit {
+			return nil
+		}
+
+		isAncestor, err := env.Call(
+			srcDir, "git", "merge-base", "--is-ancestor", commit, curCommit,
 		)
 		if err != nil {
 			return err
 		}
-		curCommit = strings.TrimSpace(curCommit)
-	}
+		if isAncestor {
+			return nil
+		}
 
-	if curCommit == commit {
-		return nil
-	}
-
-	if curCommit != "" {
 		fmt.Printf(
 			"[%s -> %s] %s - %s\n",
 			idutil.Short(curCommit), idutil.Short(commit), repo, src,
 		)
-	} else {
-		fmt.Printf(
-			"[new %s] %s -%s\n", idutil.Short(commit), repo, src,
-		)
 	}
-	xa(srcDir, "git", "fetch", "-q", src)
-	xa(srcDir, "git", "branch", "-q", "-f", "smlrepo", commit)
-	xa(srcDir, "git", "merge", "-q", "smlrepo")
 
-	return err
+	// fetch to smlrepo branch and then merge
+	for _, args := range [][]string{
+		{"git", "fetch", "-q", src},
+		{"git", "branch", "-q", "-f", "smlrepo", commit},
+		{"git", "merge", "-q", "smlrepo"},
+	} {
+		if err := env.Exec(srcDir, args[0], args[1:]...); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func sync(server string, args []string) error {
