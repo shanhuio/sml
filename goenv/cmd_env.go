@@ -80,9 +80,9 @@ func (env *ExecEnv) Exec(dir, name string, args ...string) error {
 	return cmd.Run()
 }
 
-// Call executes a process in the environment and returns true if the process
-// ends and exits with a success exit code, false if the process ends and
-// exists with a non-success exit code.
+// Call executes a process in the environment and returns true if the
+// process ends and exits with a success exit code, false if the process
+// ends and exists with a non-success exit code.
 func (env *ExecEnv) Call(dir, name string, args ...string) (bool, error) {
 	cmd := env.Cmd(&ExecJob{
 		Dir: dir, Name: name, Args: args,
