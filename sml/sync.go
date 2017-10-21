@@ -52,10 +52,16 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		return nil
 	}
 
-	fmt.Printf(
-		"[%s -> %s] %s - %s\n",
-		idutil.Short(curCommit), idutil.Short(commit), repo, src,
-	)
+	if curCommit != "" {
+		fmt.Printf(
+			"[%s -> %s] %s - %s\n",
+			idutil.Short(curCommit), idutil.Short(commit), repo, src,
+		)
+	} else {
+		fmt.Printf(
+			"[new %s] %s -%s\n", idutil.Short(commit), repo, src,
+		)
+	}
 	xa(srcDir, "git", "fetch", "-q", src)
 	xa(srcDir, "git", "branch", "-q", "-f", "smlrepo", commit)
 	xa(srcDir, "git", "merge", "-q", "smlrepo")
