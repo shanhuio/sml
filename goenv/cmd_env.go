@@ -75,11 +75,23 @@ func (env *ExecEnv) PipedCmd(j *ExecJob) *exec.Cmd {
 // Exec executes a process in the environment.
 func (env *ExecEnv) Exec(dir, name string, args ...string) error {
 	cmd := env.PipedCmd(&ExecJob{
-		Dir:  dir,
-		Name: name,
-		Args: args,
+		Dir: dir, Name: name, Args: args,
 	})
 	return cmd.Run()
+}
+
+// Call executes a process in the environment and returns true if the process
+// ends and exits with a success exit code, false if the process ends and
+// exists with a non-success exit code.
+func (env *ExecEnv) Call(dir, name string, args ...string) (bool, error) {
+	err := env.Exec(dir, name, args...)
+	if err != nil {
+		if err, ok := err.(*exec.ExitError); ok {
+			return err.Success(), nil
+		}
+		return false, err
+	}
+	return false, nil
 }
 
 // StrOut executes a process in the environment and returns the output as a
