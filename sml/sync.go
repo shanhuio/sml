@@ -22,8 +22,6 @@ func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
 }
 
 func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
-	curCommit := ""
-
 	srcDir := env.SrcDir(repo)
 	if exist, err := env.IsDir(srcDir); err != nil {
 		return err
@@ -54,18 +52,18 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		}
 
 		isAncestor, err := env.Call(
-			srcDir, "git", "merge-base", "--is-ancestor", commit, curCommit,
+			srcDir, "git", "merge-base", "--is-ancestor", commit, cur,
 		)
 		if err != nil {
 			return err
 		}
 		if isAncestor {
-			return nil
-		}
+            return nil
+        }
 
 		fmt.Printf(
 			"[%s -> %s] %s - %s\n",
-			idutil.Short(curCommit), idutil.Short(commit), repo, src,
+			idutil.Short(cur), idutil.Short(commit), repo, src,
 		)
 	}
 

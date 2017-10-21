@@ -91,7 +91,7 @@ func (env *ExecEnv) Call(dir, name string, args ...string) (bool, error) {
 		}
 		return false, err
 	}
-	return false, nil
+	return true, nil
 }
 
 // StrOut executes a process in the environment and returns the output as a
