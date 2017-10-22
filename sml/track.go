@@ -2,12 +2,14 @@ package sml
 
 import (
 	"fmt"
+	"os"
 
 	"shanhu.io/misc/httputil"
 )
 
 func track(server string, args []string) error {
 	flags := newFlags()
+	sync := flags.Bool("sync", true, "synchronize after tracking a new repo")
 	flags.Parse(args)
 	repos := flags.Args()
 	profileName := defaultProfileName
@@ -44,10 +46,23 @@ func track(server string, args []string) error {
 		return err
 	}
 
+	changed := false
 	m := profile.trackingMap()
 	for _, repo := range repos {
-		m[repo] = true
+		if m[repo] {
+			fmt.Fprintf(os.Stderr, "%q already tracked", repo)
+		} else {
+			m[repo] = true
+			changed = true
+		}
 	}
 	profile.setTrackingFromMap(m)
-	return saveProfile(profileName, profile)
+	if err := saveProfile(profileName, profile); err != nil {
+		return err
+	}
+
+	if changed && *sync {
+		return doSync(server, profile)
+	}
+	return nil
 }

@@ -90,28 +90,14 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 	return nil
 }
 
-func sync(server string, args []string) error {
-	flags := newFlags()
-	force := flags.Bool("force", false, "force syncing all repository")
-	flags.Parse(args)
-	profileName := defaultProfileName
-
-	if *force {
-		fmt.Println("using force")
-	}
-
-	profile, err := loadProfile(profileName)
-	if err != nil {
-		return err
-	}
+func doSync(server string, profile *Profile) error {
 	if len(profile.Tracking) == 0 {
 		return fmt.Errorf("nothing is tracked")
 	}
 
 	state := new(State)
 	c := httputil.NewClient(server)
-	err = c.JSONCall("/api/sync", profile, state)
-	if err != nil {
+	if err := c.JSONCall("/api/sync", profile, state); err != nil {
 		return fmt.Errorf("sync error: %s", err)
 	}
 
@@ -142,4 +128,18 @@ func sync(server string, args []string) error {
 	}
 
 	return nil
+}
+
+func sync(server string, args []string) error {
+	flags := newFlags()
+	flags.Parse(args)
+	if len(args) > 0 {
+		return fmt.Errorf("sync accepts no arguments")
+	}
+	profileName := defaultProfileName
+	profile, err := loadProfile(profileName)
+	if err != nil {
+		return err
+	}
+	return doSync(server, profile)
 }
