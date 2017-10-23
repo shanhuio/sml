@@ -98,10 +98,10 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 	}
 
 	if newRepo {
-		if err := env.Exec(
-			srcDir, "git", "branch",
-			"--set-upstream-to=origin/master", "master",
-		); err != nil {
+		if err := execAll(env, srcDir, [][]string{
+			{"git", "fetch", "-q", "origin"},
+			{"git", "branch", "--set-upstream-to=origin/master", "master"},
+		}); err != nil {
 			return err
 		}
 	}
