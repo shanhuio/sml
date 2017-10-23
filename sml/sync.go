@@ -57,7 +57,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		}
 
 		fmt.Printf(
-			"[new %s] %s -%s\n", idutil.Short(commit), repo, src,
+			"[new %s] %s\n", idutil.Short(commit), repo,
 		)
 		newRepo = true
 	} else {
@@ -83,8 +83,8 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		}
 
 		fmt.Printf(
-			"[%s -> %s] %s - %s\n",
-			idutil.Short(cur), idutil.Short(commit), repo, src,
+			"[%s..%s] %s\n",
+			idutil.Short(cur), idutil.Short(commit), repo,
 		)
 	}
 
