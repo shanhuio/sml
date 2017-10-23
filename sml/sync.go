@@ -86,8 +86,6 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
 	})
-
-	return nil
 }
 
 func doSync(server string, profile *Profile) error {
