@@ -41,6 +41,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		}
 	}
 
+	newRepo := false
 	srcGitDir := filepath.Join(srcDir, ".git")
 	if exist, err := env.IsDir(srcGitDir); err != nil {
 		return err
@@ -58,6 +59,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		fmt.Printf(
 			"[new %s] %s -%s\n", idutil.Short(commit), repo, src,
 		)
+		newRepo = true
 	} else {
 		cur, err := currentCommit(env, srcDir)
 		if err != nil {
@@ -87,11 +89,24 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 	}
 
 	// fetch to smlrepo branch and then merge
-	return execAll(env, srcDir, [][]string{
+	if err := execAll(env, srcDir, [][]string{
 		{"git", "fetch", "-q", src},
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
-	})
+	}); err != nil {
+		return err
+	}
+
+	if newRepo {
+		if err := env.Exec(
+			srcDir, "git", "branch",
+			"--set-upstream-to=origin/master", "master",
+		); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func doSync(server string, profile *Profile) error {
