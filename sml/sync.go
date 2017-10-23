@@ -49,6 +49,12 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 			return err
 		}
 
+		if err := env.Exec(
+			srcDir, "git", "remote", "add", "origin", src,
+		); err != nil {
+			return err
+		}
+
 		fmt.Printf(
 			"[new %s] %s -%s\n", idutil.Short(commit), repo, src,
 		)
@@ -86,8 +92,6 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
 	})
-
-	return nil
 }
 
 func doSync(server string, profile *Profile) error {
