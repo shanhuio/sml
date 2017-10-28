@@ -50,7 +50,7 @@ func track(server string, args []string) error {
 	m := profile.trackingMap()
 	for _, repo := range repos {
 		if m[repo] {
-			fmt.Fprintf(os.Stderr, "%q already tracked", repo)
+			fmt.Fprintf(os.Stderr, "%q is already tracked\n", repo)
 		} else {
 			m[repo] = true
 			changed = true
