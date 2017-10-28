@@ -1,5 +1,5 @@
 `sml` is a command line tool to sync from the Go langauge super repo
-at [smallrepo.com][1]. It provides an easy way to manage your Go
+at [smallrepo.com][1]. It provides a simple way to manage your Go
 language repositories.
 
 [1]: https://smallrepo.com
