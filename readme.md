@@ -4,7 +4,7 @@ language repositories.
 
 [1]: https://smallrepo.com
 
-## Usage
+## How to start?
 
 **Step 1**, get and install the client side tool:
 
@@ -32,3 +32,14 @@ sml sync
 
 It synchronizes to the HEAD of [smallrepo][1], which is guaranteed to
 be buildable.
+
+## Usage
+
+- `sml track`: prints all tracking repositories.
+- `sml track <repo> ...`: add repositories into the tracking set.
+- `sml untrack <repo> ...`: remove repositories from the tracking set.
+- `sml sync`: merge smallrepo's HEAD into the tracking repositories.
+
+## Contact
+
+liulonnie@gmail.com
