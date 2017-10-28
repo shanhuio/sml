@@ -9,7 +9,7 @@ language repositories.
 **Step 1**, get and install the client side tool:
 
 ```
-go get shanhu.io/sml
+go get -u shanhu.io/sml
 ```
 
 **Step 2**, track the repositories that you care, for example:
