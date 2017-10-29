@@ -3,6 +3,7 @@ package goenv
 import (
 	"fmt"
 	"go/build"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -20,6 +21,7 @@ type ExecJob struct {
 type ExecEnv struct {
 	gopath   string
 	buildCtx *build.Context
+	pipe     io.Writer
 }
 
 // NewExecEnv creates a new execution environment for a particular GOPATH.
@@ -31,6 +33,10 @@ func NewExecEnv(gopath string) *ExecEnv {
 		buildCtx: &ctx,
 	}
 }
+
+// BindPipe will forward stdout and stderr to the given writer,
+// rather than os.Stdout and os.Stderr.
+func (env *ExecEnv) BindPipe(w io.Writer) { env.pipe = w }
 
 // Context returns the build context that is used by this environment.
 func (env *ExecEnv) Context() *build.Context {
@@ -67,8 +73,14 @@ func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 // Cmd but also forward through the Stdout and Stderr.
 func (env *ExecEnv) PipedCmd(j *ExecJob) *exec.Cmd {
 	ret := env.Cmd(j)
-	ret.Stdout = os.Stdout
-	ret.Stderr = os.Stderr
+
+	if env.pipe != nil {
+		ret.Stdout = env.pipe
+		ret.Stderr = env.pipe
+	} else {
+		ret.Stdout = os.Stdout
+		ret.Stderr = os.Stderr
+	}
 	return ret
 }
 
@@ -104,7 +116,11 @@ func (env *ExecEnv) StrOut(dir, name string, args ...string) (string, error) {
 		Name: name,
 		Args: args,
 	})
-	cmd.Stderr = os.Stderr
+	if env.pipe != nil {
+		cmd.Stderr = env.pipe
+	} else {
+		cmd.Stderr = os.Stderr
+	}
 	bs, err := cmd.Output()
 	return string(bs), err
 }
