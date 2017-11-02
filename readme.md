@@ -42,4 +42,4 @@ be buildable.
 
 ## Contact
 
-Send email to: liulonnie@gmail.com
+Email: liulonnie@gmail.com
