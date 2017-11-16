@@ -88,11 +88,14 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		)
 	}
 
+	// In case that the user does not have git author set
+	const gitAuthor = "Smallrepo <smallrepo.bot@gmail.com>"
+
 	// fetch to smlrepo branch and then merge
 	if err := execAll(env, srcDir, [][]string{
 		{"git", "fetch", "-q", src},
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
-		{"git", "merge", "-q", "smlrepo"},
+		{"git", "merge", "-q", "smlrepo", "--author", gitAuthor},
 	}); err != nil {
 		return err
 	}
