@@ -56,6 +56,10 @@ func (env *ExecEnv) IsDir(p string) (bool, error) {
 	return stat.IsDir(), nil
 }
 
+func addEnv(cmd *exec.Cmd, k, v string) {
+	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
+}
+
 // Cmd creates an execution process using a given execution job.
 func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	ret := exec.Command(j.Name, j.Args...)
@@ -64,8 +68,10 @@ func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	} else {
 		ret.Dir = filepath.Join(env.gopath, j.Dir)
 	}
-	ret.Env = append(ret.Env, fmt.Sprintf("PATH=%s", os.Getenv("PATH")))
-	ret.Env = append(ret.Env, fmt.Sprintf("GOPATH=%s", env.gopath))
+	addEnv(ret, "PATH", os.Getenv("PATH"))
+	addEnv(ret, "GOPATH", env.gopath)
+	addEnv(ret, "GIT_AUTHOR_NAME", "smallrepo")
+	addEnv(ret, "GIT_AUTHOR_EMAIL", "smallrepo.bot@gmail.com")
 	return ret
 }
 
