@@ -57,10 +57,14 @@ func (env *ExecEnv) IsDir(p string) (bool, error) {
 }
 
 func addEnv(cmd *exec.Cmd, k, v string) {
-    if v == "" {
-        return
-    }
+	if v == "" {
+		return
+	}
 	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
+}
+
+func copyEnv(cmd *exec.Cmd, k string) {
+	addEnv(cmd, k, os.Getenv(k))
 }
 
 // Cmd creates an execution process using a given execution job.
@@ -71,8 +75,8 @@ func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	} else {
 		ret.Dir = filepath.Join(env.gopath, j.Dir)
 	}
-	addEnv(ret, "HOME", home)
-	addEnv(ret, "PATH", os.Getenv("PATH"))
+	copyEnv(ret, "HOME")
+	copyEnv(ret, "PATH")
 	addEnv(ret, "GOPATH", env.gopath)
 	return ret
 }
