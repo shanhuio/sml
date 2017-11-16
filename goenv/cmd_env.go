@@ -57,6 +57,9 @@ func (env *ExecEnv) IsDir(p string) (bool, error) {
 }
 
 func addEnv(cmd *exec.Cmd, k, v string) {
+    if v == "" {
+        return
+    }
 	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
 }
 
@@ -68,7 +71,7 @@ func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	} else {
 		ret.Dir = filepath.Join(env.gopath, j.Dir)
 	}
-	addEnv(ret, "HOME", os.Getenv("HOME"))
+	addEnv(ret, "HOME", home)
 	addEnv(ret, "PATH", os.Getenv("PATH"))
 	addEnv(ret, "GOPATH", env.gopath)
 	return ret
