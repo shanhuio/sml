@@ -68,10 +68,9 @@ func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	} else {
 		ret.Dir = filepath.Join(env.gopath, j.Dir)
 	}
+	addEnv(ret, "HOME", os.Getenv("HOME"))
 	addEnv(ret, "PATH", os.Getenv("PATH"))
 	addEnv(ret, "GOPATH", env.gopath)
-	addEnv(ret, "GIT_AUTHOR_NAME", "smallrepo")
-	addEnv(ret, "GIT_AUTHOR_EMAIL", "smallrepo.bot@gmail.com")
 	return ret
 }
 
