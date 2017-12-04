@@ -1,7 +1,7 @@
 package sml
 
 import (
-	"shanhu.io/sml/core"
+	"smallrepo.com/sml/core"
 )
 
 // State is contains a state of a mapped super repo.

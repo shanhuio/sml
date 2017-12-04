@@ -8,7 +8,7 @@ import (
 
 	"shanhu.io/misc/httputil"
 	"shanhu.io/misc/idutil"
-	"shanhu.io/sml/goenv"
+	"smallrepo.com/sml/goenv"
 )
 
 func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {

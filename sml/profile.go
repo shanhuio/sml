@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"shanhu.io/sml/goenv"
+	"smallrepo.com/sml/goenv"
 )
 
 // Profile is the config file saved in $GOPATH/src/sml.json
