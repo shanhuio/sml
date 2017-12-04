@@ -9,7 +9,7 @@ language repositories.
 **Step 1**, get and install the client side tool:
 
 ```
-go get -u shanhu.io/sml
+go get -u smallrepo.com/sml
 ```
 
 **Step 2**, track the repositories that you care, for example:
@@ -22,7 +22,7 @@ The repository must in the set of repositories that smallrepo tracks.
 If you want [smallrepo.com][1] to track more repositories,
 [file an issue][2].
 
-[2]: https://github.com/shanhuio/sml/issues/new?title=Track+new+repo
+[2]: https://github.com/smallrepo/sml/issues/new?title=Track+new+repo
 
 **Step 3**, fetch the latest version of these repos:
 
