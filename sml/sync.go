@@ -31,29 +31,29 @@ func execAll(env *goenv.ExecEnv, srcDir string, lines [][]string) error {
 	return nil
 }
 
-func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
+func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 	srcDir := env.SrcDir(repo)
 	if exist, err := env.IsDir(srcDir); err != nil {
-		return err
+		return false, err
 	} else if !exist {
 		if err := env.Exec("", "mkdir", "-p", srcDir); err != nil {
-			return err
+			return false, err
 		}
 	}
 
 	newRepo := false
 	srcGitDir := filepath.Join(srcDir, ".git")
 	if exist, err := env.IsDir(srcGitDir); err != nil {
-		return err
+		return false, err
 	} else if !exist {
 		if err := env.Exec(srcDir, "git", "init", "-q"); err != nil {
-			return err
+			return false, err
 		}
 
 		if err := env.Exec(
 			srcDir, "git", "remote", "add", "origin", src,
 		); err != nil {
-			return err
+			return false, err
 		}
 
 		fmt.Printf(
@@ -63,21 +63,21 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 	} else {
 		cur, err := currentCommit(env, srcDir)
 		if err != nil {
-			return err
+			return false, err
 		}
 		if cur == commit {
-			return nil
+			return false, nil
 		}
 
 		isAncestor, err := env.Call(
 			srcDir, "git", "merge-base", "--is-ancestor", commit, cur,
 		)
 		if err != nil {
-			return err
+			return false, err
 		}
 		if isAncestor {
 			// merge will be a noop, just update smlrepo branch.
-			return env.Exec(
+			return false, env.Exec(
 				srcDir, "git", "branch", "-q", "-f", "smlrepo", commit,
 			)
 		}
@@ -94,7 +94,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
 	}); err != nil {
-		return err
+		return false, err
 	}
 
 	if newRepo {
@@ -105,11 +105,17 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) error {
 				"--set-upstream-to=origin/master", "master",
 			},
 		}); err != nil {
-			return err
+			return false, err
 		}
 	}
 
-	return nil
+	return true, nil
+}
+
+const thisRepo = "smallrepo.com/sml"
+
+func installThis(env *goenv.ExecEnv) error {
+	return env.Exec(env.SrcDir(thisRepo), "go", "install", thisRepo)
 }
 
 func doSync(server string, profile *Profile) error {
@@ -130,8 +136,13 @@ func doSync(server string, profile *Profile) error {
 	}
 
 	var repos []string
+	repoMap := make(map[string]bool)
 	for repo := range state.Commits {
 		repos = append(repos, repo)
+		repoMap[repo] = true
+	}
+	if !repoMap[thisRepo] {
+		repos = append(repos, thisRepo)
 	}
 	sort.Strings(repos)
 
@@ -141,14 +152,28 @@ func doSync(server string, profile *Profile) error {
 	}
 	env := goenv.NewExecEnv(gopath)
 
+	needInstallThis := false
+
 	for _, repo := range repos {
 		commit := state.Commits[repo]
 		src := state.Sources[repo]
-		if err := syncRepo(env, repo, src, commit); err != nil {
+		updated, err := syncRepo(env, repo, src, commit)
+		if err != nil {
 			return err
+		}
+
+		if updated && repo == thisRepo {
+			needInstallThis = true
 		}
 	}
 
+	if needInstallThis {
+		if err := installThis(env); err != nil {
+			return err
+		}
+		fmt.Println("sml binary updated")
+	} else {
+	}
 	return nil
 }
 

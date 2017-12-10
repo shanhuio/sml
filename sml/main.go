@@ -14,4 +14,6 @@ func cmd() *subcmd.List {
 }
 
 // Main is the main entrance function for smlsync command.
-func Main() { cmd().Main() }
+func Main() {
+	cmd().Main()
+}
