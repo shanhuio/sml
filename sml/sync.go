@@ -112,10 +112,11 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 	return true, nil
 }
 
-const thisRepo = "smallrepo.com/sml"
+// ThisRepo is the package name of this repo.
+const ThisRepo = "smallrepo.com/sml"
 
 func installThis(env *goenv.ExecEnv) error {
-	return env.Exec(env.SrcDir(thisRepo), "go", "install", thisRepo)
+	return env.Exec(env.SrcDir(ThisRepo), "go", "install", ThisRepo)
 }
 
 func doSync(server string, profile *Profile) error {
@@ -124,8 +125,11 @@ func doSync(server string, profile *Profile) error {
 	}
 
 	state := new(State)
+	query := &StateQuery{
+		Tracking: profile.Tracking,
+	}
 	c := httputil.NewClient(server)
-	if err := c.JSONCall("/api/sync", profile, state); err != nil {
+	if err := c.JSONCall("/api/sync", query, state); err != nil {
 		return fmt.Errorf("sync error: %s", err)
 	}
 
@@ -141,8 +145,8 @@ func doSync(server string, profile *Profile) error {
 		repos = append(repos, repo)
 		repoMap[repo] = true
 	}
-	if !repoMap[thisRepo] {
-		repos = append(repos, thisRepo)
+	if !repoMap[ThisRepo] {
+		repos = append(repos, ThisRepo)
 	}
 	sort.Strings(repos)
 
@@ -162,7 +166,7 @@ func doSync(server string, profile *Profile) error {
 			return err
 		}
 
-		if updated && repo == thisRepo {
+		if updated && repo == ThisRepo {
 			needInstallThis = true
 		}
 	}
