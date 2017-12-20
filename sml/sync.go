@@ -6,8 +6,9 @@ import (
 	"sort"
 	"strings"
 
+	"shanhu.io/misc/httputil"
+	"shanhu.io/misc/idutil"
 	"smallrepo.com/sml/goenv"
-	"smallrepo.com/sml/httputil"
 )
 
 func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
@@ -56,7 +57,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 		}
 
 		fmt.Printf(
-			"[new %s] %s\n", shortID(commit), repo,
+			"[new %s] %s\n", idutil.Short(commit), repo,
 		)
 		newRepo = true
 	} else {
@@ -83,7 +84,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 
 		fmt.Printf(
 			"[%s..%s] %s\n",
-			shortID(cur), shortID(commit), repo,
+			idutil.Short(cur), idutil.Short(commit), repo,
 		)
 	}
 
@@ -132,7 +133,7 @@ func doSync(server string, profile *Profile) error {
 		return fmt.Errorf("sync error: %s", err)
 	}
 
-	fmt.Printf("#%d  [%s]\n", state.Clock, shortID(state.ID))
+	fmt.Printf("#%d  [%s]\n", state.Clock, idutil.Short(state.ID))
 
 	if len(state.Commits) == 0 {
 		return fmt.Errorf("got no commits")

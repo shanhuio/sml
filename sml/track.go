@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"smallrepo.com/sml/httputil"
+	"shanhu.io/misc/httputil"
 )
 
 func track(server string, args []string) error {

@@ -1,7 +1,7 @@
 package sml
 
 import (
-	"smallrepo.com/sml/subcmd"
+	"shanhu.io/misc/subcmd"
 )
 
 func cmd() *subcmd.List {
