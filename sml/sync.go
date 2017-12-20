@@ -115,6 +115,9 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 // ThisRepo is the package name of this repo.
 const ThisRepo = "smallrepo.com/sml"
 
+// the only repo that ThisRepo depends.
+const baseRepo = "smallrepo.com/base"
+
 func installThis(env *goenv.ExecEnv) error {
 	return env.Exec(env.SrcDir(ThisRepo), "go", "install", ThisRepo)
 }
@@ -166,7 +169,7 @@ func doSync(server string, profile *Profile) error {
 			return err
 		}
 
-		if updated && repo == ThisRepo {
+		if updated && (repo == ThisRepo || repo == baseRepo) {
 			needInstallThis = true
 		}
 	}
