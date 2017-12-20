@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"shanhu.io/misc/httputil"
-	"shanhu.io/misc/idutil"
+	"smallrepo.com/base/httputil"
+	"smallrepo.com/base/idutil"
 	"smallrepo.com/sml/goenv"
 )
 
