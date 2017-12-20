@@ -1,9 +1,9 @@
 package core
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
-
-	"shanhu.io/misc/hashutil"
 )
 
 // Core is the core of a build result.
@@ -21,5 +21,6 @@ func (c *Core) Hash() string {
 		panic(err)
 	}
 
-	return hashutil.Hash(bs)
+	ret := sha256.Sum256(bs)
+	return hex.EncodeToString(ret[:])
 }
