@@ -137,7 +137,13 @@ func (env *ExecEnv) StrOut(dir, name string, args ...string) (string, error) {
 	return string(bs), err
 }
 
+// PkgPath returns the file path of a sub directory (e.g. src, bin, etc.)
+// for a particular package.
+func (env *ExecEnv) PkgPath(subDir, pkg string) string {
+	return filepath.Join(subDir, filepath.FromSlash(pkg))
+}
+
 // SrcDir returns the Go language source directory.
 func (env *ExecEnv) SrcDir(pkg string) string {
-	return filepath.Join("src", filepath.FromSlash(pkg))
+	return env.PkgPath("src", pkg)
 }
