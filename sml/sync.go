@@ -32,7 +32,7 @@ func execAll(env *goenv.ExecEnv, srcDir string, lines [][]string) error {
 }
 
 func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
-	srcDir := env.SrcDir(repo)
+	srcDir := goenv.SrcDir(repo)
 	if exist, err := env.IsDir(srcDir); err != nil {
 		return false, err
 	} else if !exist {
@@ -119,7 +119,7 @@ const ThisRepo = "smallrepo.com/sml"
 const baseRepo = "smallrepo.com/base"
 
 func installThis(env *goenv.ExecEnv) error {
-	return env.Exec(env.SrcDir(ThisRepo), "go", "install", ThisRepo)
+	return env.Exec(goenv.SrcDir(ThisRepo), "go", "install", ThisRepo)
 }
 
 func doSync(server string, profile *Profile) error {
