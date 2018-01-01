@@ -34,6 +34,9 @@ func NewExecEnv(gopath string) *ExecEnv {
 	}
 }
 
+// GOPATH returns the GOPATH for this environment.
+func (env *ExecEnv) GOPATH() string { return env.gopath }
+
 // BindPipe will forward stdout and stderr to the given writer,
 // rather than os.Stdout and os.Stderr.
 func (env *ExecEnv) BindPipe(w io.Writer) { env.pipe = w }
