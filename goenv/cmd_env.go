@@ -1,12 +1,13 @@
 package goenv
 
 import (
-	"fmt"
 	"go/build"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"shanhu.io/misc/osutil"
 )
 
 // ExecJob is an execution job to be executed in an execution environment.
@@ -59,17 +60,6 @@ func (env *ExecEnv) IsDir(p string) (bool, error) {
 	return stat.IsDir(), nil
 }
 
-func addEnv(cmd *exec.Cmd, k, v string) {
-	if v == "" {
-		return
-	}
-	cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
-}
-
-func copyEnv(cmd *exec.Cmd, k string) {
-	addEnv(cmd, k, os.Getenv(k))
-}
-
 // Cmd creates an execution process using a given execution job.
 func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	ret := exec.Command(j.Name, j.Args...)
@@ -78,9 +68,9 @@ func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	} else {
 		ret.Dir = filepath.Join(env.gopath, j.Dir)
 	}
-	copyEnv(ret, "HOME")
-	copyEnv(ret, "PATH")
-	addEnv(ret, "GOPATH", env.gopath)
+	osutil.CmdCopyEnv(ret, "HOME")
+	osutil.CmdCopyEnv(ret, "PATH")
+	osutil.CmdAddEnv(ret, "GOPATH", env.gopath)
 	return ret
 }
 
