@@ -179,7 +179,6 @@ func doSync(server string, profile *Profile) error {
 			return err
 		}
 		fmt.Println("sml binary updated")
-	} else {
 	}
 	return nil
 }
