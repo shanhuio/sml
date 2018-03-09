@@ -10,6 +10,7 @@ type Commit struct {
 	Time    time.Time // commit time
 	Clock   uint64    // logical time
 	Parents []string  // parent ids
+	Message string    // a brief message
 	Data    string    // hash to payload data
 }
 
