@@ -12,7 +12,7 @@ type Core struct {
 	GoVersion   string
 	Tracking    []string
 	Commits     map[string]string
-	BuildConfig *BuildConfig
+	BuildConfig *BuildConfig `json:",omitempty"`
 }
 
 // Hash creates the hash of this core result object.
