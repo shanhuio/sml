@@ -8,10 +8,11 @@ import (
 
 // Core is the core of a build result.
 type Core struct {
-	Version   string
-	GoVersion string
-	Tracking  []string
-	Commits   map[string]string
+	Version     string
+	GoVersion   string
+	Tracking    []string
+	Commits     map[string]string
+	BuildConfig *BuildConfig
 }
 
 // Hash creates the hash of this core result object.
