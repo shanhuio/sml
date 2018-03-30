@@ -32,6 +32,12 @@ func execAll(env *goenv.ExecEnv, srcDir string, lines [][]string) error {
 }
 
 func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
+	if strings.HasPrefix("commit", "hg/") {
+		err := fmt.Errorf(
+			"%q: mercurial repo support not implemented yet", repo,
+		)
+		return false, err
+	}
 	srcDir := goenv.SrcDir(repo)
 	if exist, err := env.IsDir(srcDir); err != nil {
 		return false, err
