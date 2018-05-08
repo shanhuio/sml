@@ -1,4 +1,4 @@
-package main // import "smallrepo.com/sml"
+package main
 
 import (
 	"smallrepo.com/sml/sml"

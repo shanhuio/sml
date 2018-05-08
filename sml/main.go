@@ -1,4 +1,4 @@
-package sml
+package sml // import "smallrepo.com/sml/sml"
 
 import (
 	"smallrepo.com/base/subcmd"
