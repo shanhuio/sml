@@ -1,8 +1,4 @@
-package sml
-
-import (
-	"smallrepo.com/sml/core"
-)
+package core
 
 // StateQuery is a state query.
 type StateQuery struct {
@@ -18,7 +14,7 @@ type State struct {
 }
 
 // NewState creates a new state with a particular ID.
-func NewState(com *core.Commit) *State {
+func NewState(com *Commit) *State {
 	return &State{
 		ID:      com.ID,
 		Clock:   com.Clock,

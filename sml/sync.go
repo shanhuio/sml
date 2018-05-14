@@ -8,6 +8,7 @@ import (
 
 	"smallrepo.com/base/httputil"
 	"smallrepo.com/base/idutil"
+	"smallrepo.com/sml/core"
 	"smallrepo.com/sml/goenv"
 )
 
@@ -133,8 +134,8 @@ func doSync(server string, profile *Profile) error {
 		return fmt.Errorf("nothing is tracked")
 	}
 
-	state := new(State)
-	query := &StateQuery{
+	state := new(core.State)
+	query := &core.StateQuery{
 		Tracking: profile.Tracking,
 	}
 	c := httputil.NewClient(server)
