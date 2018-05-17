@@ -10,8 +10,9 @@ type Commit struct {
 	Time    time.Time // commit time
 	Clock   uint64    // logical time
 	Parents []string  // parent ids
+	Super   string    // id to the super commit
 	Message string    // a brief message
-	Data    string    // hash to payload data
+	Data    string    // hash to core data
 }
 
 // CommitCore is a commit of the super repo and its payload -- the core.
