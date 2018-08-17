@@ -9,7 +9,7 @@ func cmd() *subcmd.List {
 	c.AddHost("sync", "synchronizes a profile", sync)
 	c.AddHost("track", "tracks a repository in the profile", track)
 	c.AddHost("untrack", "untracks a repository in the profile", untrack)
-	c.SetDefaultServer("https://smallrepo.com")
+	c.SetDefaultServer("https://gopkgs.io")
 	return c
 }
 
