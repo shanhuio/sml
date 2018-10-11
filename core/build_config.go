@@ -10,9 +10,9 @@ type BuildConfig struct {
 	PkgBlackList []string `json:",omitempty"`
 
 	// RepoFixes specifies repo mirrors required to make things build.
-    // Deprecated. Use RepoSrcs instead.
+	// Deprecated. Use RepoSrcs instead.
 	RepoFixes map[string]string `json:",omitempty"`
 
-    // RepoSrcs specifies repo git sources for the repos.
-    RepoSrcs map[string]string `json:",omitempty"`
+	// RepoSrcs specifies repo git sources for the repos.
+	RepoSrcs map[string]string `json:",omitempty"`
 }
