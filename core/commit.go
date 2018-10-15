@@ -11,7 +11,7 @@ type Commit struct {
 	Clock   uint64    // logical time
 	Parents []string  // parent ids
 	Super   string    // id to the super commit
-	Message string    // a brief message
+	Message []byte    // a brief message
 	Data    string    // hash to core data
 }
 
