@@ -6,13 +6,18 @@ import (
 
 // Commit is a commit of the super repo.
 type Commit struct {
-	ID      string    // a random id
+	ID      string    // a random ID
+	Project string    `json:",omitempty"`
 	Time    time.Time // commit time
 	Clock   uint64    // logical time
 	Parents []string  // parent ids
-	Super   string    // id to the super commit
-	Message []byte    // a brief message
-	Data    string    // hash to core data
+
+	// Super is the ID to the super commit, the commit where this commit is
+	// based on.
+	Super string
+
+	Message []byte // a brief message
+	Data    string // hash to core data
 }
 
 // CommitCore is a commit of the super repo and its payload -- the core.
