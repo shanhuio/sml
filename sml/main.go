@@ -1,4 +1,4 @@
-package sml // import "smallrepo.com/sml/sml"
+package sml // import "shanhu.io/sml/sml"
 
 import (
 	"shanhu.io/base/subcmd"
