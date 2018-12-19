@@ -1,7 +1,7 @@
-package main
+package sml
 
 import (
-	"smallrepo.com/sml/sml"
+	"shanhu.io/sml/sml"
 )
 
 func main() { sml.Main() }

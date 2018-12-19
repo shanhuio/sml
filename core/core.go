@@ -3,7 +3,7 @@ package core
 import (
 	"encoding/json"
 
-	"smallrepo.com/base/hashutil"
+	"shanhu.io/base/hashutil"
 )
 
 // Core is the core of a build result.

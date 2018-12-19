@@ -6,10 +6,10 @@ import (
 	"sort"
 	"strings"
 
-	"smallrepo.com/base/httputil"
-	"smallrepo.com/base/idutil"
-	"smallrepo.com/sml/core"
-	"smallrepo.com/sml/goenv"
+	"shanhu.io/base/httputil"
+	"shanhu.io/base/idutil"
+	"shanhu.io/sml/core"
+	"shanhu.io/sml/goenv"
 )
 
 func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
