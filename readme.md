@@ -1,8 +1,8 @@
 `sml` is a command line tool to sync from the Go langauge super repo
-at [smallrepo.com][1]. It provides a simple way to manage your Go
+at [gopkgs.io][1]. It provides a simple way to manage your Go
 language repositories.
 
-[1]: https://smallrepo.com
+[1]: https://gopkgs.io
 
 ## How to start?
 
@@ -18,11 +18,11 @@ go get -u shanhu.io/sml
 sml track shanhu.io/aries
 ```
 
-The repository must in the set of repositories that smallrepo tracks.
-If you want [smallrepo.com][1] to track more repositories,
+The repository must in the set of repositories that gopkgs.io tracks.
+If you want [gopkgs.io][1] to track more repositories,
 [file an issue][2].
 
-[2]: https://github.com/smallrepo/sml/issues/new?title=Track+new+repo
+[2]: https://github.com/shanhuio/sml/issues/new?title=Track+new+repo
 
 **Step 3**, fetch the latest version of these repos:
 
@@ -30,7 +30,7 @@ If you want [smallrepo.com][1] to track more repositories,
 sml sync
 ```
 
-It synchronizes to the HEAD of [smallrepo][1], which is guaranteed to
+It synchronizes to the HEAD of [gopkgs.io][1], which is guaranteed to
 be buildable.
 
 ## Usage
@@ -38,7 +38,7 @@ be buildable.
 - `sml track`: prints all tracking repositories.
 - `sml track <repo> ...`: add repositories into the tracking set.
 - `sml untrack <repo> ...`: remove repositories from the tracking set.
-- `sml sync`: merge smallrepo's HEAD into the tracking repositories.
+- `sml sync`: merge HEAD from gopkgs.io into the tracking repositories.
 
 ## Contact
 
