@@ -129,20 +129,8 @@ func installThis(env *goenv.ExecEnv) error {
 	return env.Exec(goenv.SrcDir(ThisRepo), "go", "install", ThisRepo)
 }
 
-func doSync(server string, profile *Profile) error {
-	if len(profile.Tracking) == 0 {
-		return fmt.Errorf("nothing is tracked")
-	}
-
-	state := new(core.State)
-	query := &core.StateQuery{
-		Tracking: profile.Tracking,
-	}
-	c := httputil.NewClient(server)
-	if err := c.JSONCall("/api/sync", query, state); err != nil {
-		return fmt.Errorf("sync error: %s", err)
-	}
-
+// SyncTo syncs to the desired state.
+func SyncTo(state *core.State) error {
 	fmt.Printf("#%d  [%s]\n", state.Clock, idutil.Short(state.ID))
 
 	if len(state.Commits) == 0 {
@@ -188,6 +176,23 @@ func doSync(server string, profile *Profile) error {
 		fmt.Println("sml binary updated")
 	}
 	return nil
+}
+
+func doSync(server string, profile *Profile) error {
+	if len(profile.Tracking) == 0 {
+		return fmt.Errorf("nothing is tracked")
+	}
+
+	state := new(core.State)
+	query := &core.StateQuery{
+		Tracking: profile.Tracking,
+	}
+	c := httputil.NewClient(server)
+	if err := c.JSONCall("/api/sync", query, state); err != nil {
+		return fmt.Errorf("sync error: %s", err)
+	}
+
+	return SyncTo(state)
 }
 
 func sync(server string, args []string) error {
