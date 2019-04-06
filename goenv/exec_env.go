@@ -70,6 +70,7 @@ func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	}
 	osutil.CmdCopyEnv(ret, "HOME")
 	osutil.CmdCopyEnv(ret, "PATH")
+	osutil.CmdCopyEnv(ret, "SSH_AUTH_SOCK")
 	osutil.CmdAddEnv(ret, "GOPATH", env.gopath)
 	return ret
 }
