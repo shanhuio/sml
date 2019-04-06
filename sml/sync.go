@@ -120,7 +120,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 }
 
 // ThisRepo is the package name of this repo.
-const ThisRepo = "smallrepo.com/sml"
+const ThisRepo = "shanhu.io/sml"
 
 // the only repo that ThisRepo depends.
 const baseRepo = "smallrepo.com/base"
