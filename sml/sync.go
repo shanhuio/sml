@@ -125,12 +125,12 @@ const ThisRepo = "shanhu.io/sml"
 // the only repo that ThisRepo depends.
 const baseRepo = "smallrepo.com/base"
 
-func installThis(env *goenv.ExecEnv) error {
-	return env.Exec(goenv.SrcDir(ThisRepo), "go", "install", ThisRepo)
+func installThis(env *goenv.ExecEnv, thisRepo string) error {
+	return env.Exec(goenv.SrcDir(thisRepo), "go", "install", thisRepo)
 }
 
 // SyncTo syncs to the desired state.
-func SyncTo(state *core.State) error {
+func SyncTo(state *core.State, thisRepo string) error {
 	fmt.Printf("#%d  [%s]\n", state.Clock, idutil.Short(state.ID))
 
 	if len(state.Commits) == 0 {
@@ -143,8 +143,8 @@ func SyncTo(state *core.State) error {
 		repos = append(repos, repo)
 		repoMap[repo] = true
 	}
-	if !repoMap[ThisRepo] {
-		repos = append(repos, ThisRepo)
+	if !repoMap[thisRepo] {
+		repos = append(repos, thisRepo)
 	}
 	sort.Strings(repos)
 
@@ -154,26 +154,16 @@ func SyncTo(state *core.State) error {
 	}
 	env := goenv.NewExecEnv(gopath)
 
-	needInstallThis := false
-
 	for _, repo := range repos {
 		commit := state.Commits[repo]
 		src := state.Sources[repo]
-		updated, err := syncRepo(env, repo, src, commit)
-		if err != nil {
+		if _, err := syncRepo(env, repo, src, commit); err != nil {
 			return err
-		}
-
-		if updated && (repo == ThisRepo || repo == baseRepo) {
-			needInstallThis = true
 		}
 	}
 
-	if needInstallThis {
-		if err := installThis(env); err != nil {
-			return err
-		}
-		fmt.Println("sml binary updated")
+	if err := installThis(env, thisRepo); err != nil {
+		return err
 	}
 	return nil
 }
@@ -192,7 +182,7 @@ func doSync(server string, profile *Profile) error {
 		return fmt.Errorf("sync error: %s", err)
 	}
 
-	return SyncTo(state)
+	return SyncTo(state, ThisRepo)
 }
 
 func sync(server string, args []string) error {
