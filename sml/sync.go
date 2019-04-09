@@ -119,18 +119,25 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 	return true, nil
 }
 
+// AutoInstall is the packaget that will be auto installed on a sync
+// operation.
+type AutoInstall struct {
+	Repo string
+	Pkg  string
+}
+
 // ThisRepo is the package name of this repo.
-const ThisRepo = "shanhu.io/sml"
+var ThisRepo = &AutoInstall{
+	Repo: "shanhu.io/sml",
+	Pkg:  "shanhu.io/sml",
+}
 
-// the only repo that ThisRepo depends.
-const baseRepo = "smallrepo.com/base"
-
-func installThis(env *goenv.ExecEnv, thisRepo string) error {
-	return env.Exec(goenv.SrcDir(thisRepo), "go", "install", thisRepo)
+func installThis(env *goenv.ExecEnv, auto *AutoInstall) error {
+	return env.Exec(goenv.SrcDir(auto.Pkg), "go", "install", auto.Pkg)
 }
 
 // SyncTo syncs to the desired state.
-func SyncTo(state *core.State, thisRepo string) error {
+func SyncTo(state *core.State, auto *AutoInstall) error {
 	fmt.Printf("#%d  [%s]\n", state.Clock, idutil.Short(state.ID))
 
 	if len(state.Commits) == 0 {
@@ -143,8 +150,8 @@ func SyncTo(state *core.State, thisRepo string) error {
 		repos = append(repos, repo)
 		repoMap[repo] = true
 	}
-	if !repoMap[thisRepo] {
-		repos = append(repos, thisRepo)
+	if !repoMap[auto.Repo] {
+		repos = append(repos, auto.Repo)
 	}
 	sort.Strings(repos)
 
@@ -162,7 +169,7 @@ func SyncTo(state *core.State, thisRepo string) error {
 		}
 	}
 
-	if err := installThis(env, thisRepo); err != nil {
+	if err := installThis(env, auto); err != nil {
 		return err
 	}
 	return nil
