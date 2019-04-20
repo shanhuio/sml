@@ -49,7 +49,9 @@ func (env *ExecEnv) Context() *build.Context {
 
 // IsDir checks if p exists as a directory under the GOPATH.
 func (env *ExecEnv) IsDir(p string) (bool, error) {
-	p = filepath.Join(env.gopath, p)
+	if env.gopath != "" {
+		p = filepath.Join(env.gopath, p)
+	}
 	stat, err := os.Stat(p)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -63,15 +65,25 @@ func (env *ExecEnv) IsDir(p string) (bool, error) {
 // Cmd creates an execution process using a given execution job.
 func (env *ExecEnv) Cmd(j *ExecJob) *exec.Cmd {
 	ret := exec.Command(j.Name, j.Args...)
-	if j.Dir == "" {
-		ret.Dir = env.gopath
+	if env.gopath == "" {
+		if j.Dir == "" {
+			ret.Dir = "/"
+		} else {
+			ret.Dir = j.Dir
+		}
 	} else {
-		ret.Dir = filepath.Join(env.gopath, j.Dir)
+		if j.Dir == "" {
+			ret.Dir = env.gopath
+		} else {
+			ret.Dir = filepath.Join(env.gopath, j.Dir)
+		}
 	}
 	osutil.CmdCopyEnv(ret, "HOME")
 	osutil.CmdCopyEnv(ret, "PATH")
 	osutil.CmdCopyEnv(ret, "SSH_AUTH_SOCK")
-	osutil.CmdAddEnv(ret, "GOPATH", env.gopath)
+	if env.gopath != "" {
+		osutil.CmdAddEnv(ret, "GOPATH", env.gopath)
+	}
 	return ret
 }
 
