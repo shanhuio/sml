@@ -137,7 +137,7 @@ func installThis(env *goenv.ExecEnv, auto *AutoInstall) error {
 }
 
 // SyncTo syncs to the desired state.
-func SyncTo(state *core.State, auto *AutoInstall) error {
+func SyncTo(env *goenv.ExecEnv, state *core.State, auto *AutoInstall) error {
 	fmt.Printf("#%d  [%s]\n", state.Clock, idutil.Short(state.ID))
 
 	if len(state.Commits) == 0 {
@@ -150,16 +150,20 @@ func SyncTo(state *core.State, auto *AutoInstall) error {
 		repos = append(repos, repo)
 		repoMap[repo] = true
 	}
-	if !repoMap[auto.Repo] {
-		repos = append(repos, auto.Repo)
+	if auto != nil {
+		if !repoMap[auto.Repo] {
+			repos = append(repos, auto.Repo)
+		}
 	}
 	sort.Strings(repos)
 
-	gopath, err := goenv.GOPATH()
-	if err != nil {
-		return err
+	if env == nil {
+		gopath, err := goenv.GOPATH()
+		if err != nil {
+			return err
+		}
+		env = goenv.NewExecEnv(gopath)
 	}
-	env := goenv.NewExecEnv(gopath)
 
 	for _, repo := range repos {
 		commit := state.Commits[repo]
@@ -169,8 +173,10 @@ func SyncTo(state *core.State, auto *AutoInstall) error {
 		}
 	}
 
-	if err := installThis(env, auto); err != nil {
-		return err
+	if auto != nil {
+		if err := installThis(env, auto); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -189,7 +195,7 @@ func doSync(server string, profile *Profile) error {
 		return fmt.Errorf("sync error: %s", err)
 	}
 
-	return SyncTo(state, ThisRepo)
+	return SyncTo(nil, state, ThisRepo)
 }
 
 func sync(server string, args []string) error {
