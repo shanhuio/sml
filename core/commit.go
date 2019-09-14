@@ -12,9 +12,10 @@ type Commit struct {
 	Clock   uint64    // logical time
 	Parents []string  // parent ids
 
-	// Super is the ID to the super commit, the commit where this commit is
-	// based on.
-	Super string
+	// Super (deprecated) is the ID to the super commit, the commit where this
+	// commit is based on.
+	//
+	// Super string
 
 	Message []byte // a brief message
 	Data    string // hash to core data
