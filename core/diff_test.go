@@ -114,7 +114,7 @@ func TestDiff(t *testing.T) {
 			},
 		},
 	} {
-		got := newDiff(test.from, test.to)
+		got := NewDiff(test.from, test.to)
 		cleanDiff(test.diff)
 		cleanDiff(got)
 		if !reflect.DeepEqual(got, test.diff) {

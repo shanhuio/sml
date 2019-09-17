@@ -51,7 +51,8 @@ type Diff struct {
 	MultiParent bool
 }
 
-func newDiff(from, to *Core) *Diff {
+// NewDiff creates a new diff for two cores.
+func NewDiff(from, to *Core) *Diff {
 	if from == nil {
 		ret := &Diff{
 			Version:   makeDiffline("", to.Version),
