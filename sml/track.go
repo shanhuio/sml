@@ -28,7 +28,7 @@ func track(server string, args []string) error {
 
 	c := httputil.NewClient(server)
 	var missing []string
-	err := c.JSONCall("/api/tracking:missing", repos, &missing)
+	err := c.JSONCall("/api/repos/not-tracking", repos, &missing)
 	if err != nil {
 		return fmt.Errorf("cannot confirm if trackable: %s", err)
 	}
