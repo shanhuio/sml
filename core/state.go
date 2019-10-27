@@ -11,6 +11,9 @@ type State struct {
 	Clock   uint64
 	Commits map[string]string
 	Sources map[string]string
+
+	// Missing are repos requested but missing
+	Missing []string `json:",omitempty"`
 }
 
 // NewState creates a new state with a particular ID.
