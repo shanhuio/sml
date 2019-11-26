@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"shanhu.io/base/idutil"
+	"shanhu.io/misc/idutil"
 	"shanhu.io/sml/core"
 	"shanhu.io/sml/goenv"
 )
