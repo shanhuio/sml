@@ -67,7 +67,7 @@ func execGitFetch(env *goenv.ExecEnv, srcDir string, src string) error {
 			return fmt.Errorf("HOME contains back slash char, not supported")
 		}
 
-		gitSSH := fmt.Sprintf(`ssh -o UserKnownHosts='%s'`, knownHosts)
+		gitSSH := fmt.Sprintf(`ssh -o UserKnownHostsFile='%s'`, knownHosts)
 		osutil.CmdAddEnv(cmd, "GIT_SSH_COMMAND", gitSSH)
 	}
 
