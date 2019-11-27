@@ -13,20 +13,29 @@ import (
 	"shanhu.io/sml/sync"
 )
 
-func run(server, proj, org string, verbose bool) error {
-	c, err := creds.Dial(server)
+type runner struct {
+	server   string
+	proj     string
+	stateMap func(s *core.State)
+	verbose  bool
+}
+
+func (r *runner) run() error {
+	c, err := creds.Dial(r.server)
 	if err != nil {
 		return err
 	}
 
 	state := new(core.State)
-	if err := c.JSONCall("/api/sync/proj", proj, state); err != nil {
+	if err := c.JSONCall("/api/sync/proj", r.proj, state); err != nil {
 		return err
 	}
 
-	gitmap.MapCoreState(state, gitmap.NewBitbucketPrivate(org))
+	if r.stateMap != nil {
+		r.stateMap(state)
+	}
 
-	if verbose {
+	if r.verbose {
 		jsonutil.Print(state)
 	}
 
@@ -38,11 +47,32 @@ func main() {
 		"server", "https://forge.shanhu.io", "Server address.",
 	)
 	org := flag.String("org", "shanhuio", "Default private org on bitbucket.")
+	mirror := flag.String("mirror", "", "Sync from this mirror machine.")
 	proj := flag.String("proj", "h8liu", "Project to sync to.")
 	verbose := flag.Bool("v", false, "print the state")
 	flag.Parse()
 
-	if err := run(*server, *proj, *org, *verbose); err != nil {
+	r := &runner{
+		server:  *server,
+		proj:    *proj,
+		verbose: *verbose,
+	}
+
+	if *mirror != "" {
+		r.stateMap = func(s *core.State) {
+			srcs := make(map[string]string)
+			for repo := range s.Sources {
+				srcs[repo] = *mirror + "/" + repo
+			}
+			s.Sources = srcs
+		}
+	} else if *org != "" {
+		r.stateMap = func(s *core.State) {
+			gitmap.MapCoreState(s, gitmap.NewBitbucketPrivate(*org))
+		}
+	}
+
+	if err := r.run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
