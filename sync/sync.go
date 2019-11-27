@@ -149,14 +149,14 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 	// fetch to smlrepo branch and then merge
 
 	if err := execGitFetch(env, srcDir, src); err != nil {
-		return false, err
+		return false, fmt.Errorf("git fetch: %s", err)
 	}
 
 	if err := execAll(env, srcDir, [][]string{
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
 	}); err != nil {
-		return false, err
+		return false, fmt.Errorf("git branch and merge: %s", err)
 	}
 
 	if newRepo {
@@ -170,7 +170,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 				"--set-upstream-to=origin/master", "master",
 			},
 		}); err != nil {
-			return false, err
+			return false, fmt.Errorf("git setup origin: %s", err)
 		}
 	}
 
@@ -221,7 +221,10 @@ func Sync(env *goenv.ExecEnv, state *core.State, auto *AutoInstall) error {
 		commit := state.Commits[repo]
 		src := state.Sources[repo]
 		if _, err := syncRepo(env, repo, src, commit); err != nil {
-			return err
+			return fmt.Errorf(
+				"sync repo %q from %q to commit %q: %s",
+				repo, src, idutil.Short(commit), err,
+			)
 		}
 	}
 
