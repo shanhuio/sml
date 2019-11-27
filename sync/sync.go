@@ -3,11 +3,13 @@ package sync
 
 import (
 	"fmt"
+	"os/user"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"shanhu.io/misc/idutil"
+	"shanhu.io/misc/osutil"
 	"shanhu.io/sml/core"
 	"shanhu.io/sml/goenv"
 )
@@ -30,6 +32,38 @@ func execAll(env *goenv.ExecEnv, srcDir string, lines [][]string) error {
 	}
 
 	return nil
+}
+
+func execGitFetch(env *goenv.ExecEnv, srcDir string, src string) error {
+	u, err := user.Current()
+	if err != nil {
+		return fmt.Errorf("get current user: %s", err)
+	}
+	knownHosts := filepath.Join(u.HomeDir, ".shanhu/ssh_known_hosts")
+	hasKnownHosts, err := osutil.IsRegular(knownHosts)
+	if err != nil {
+		return err
+	}
+
+	cmd := env.Cmd(&goenv.ExecJob{
+		Dir:  srcDir,
+		Name: "git",
+		Args: []string{"fetch", "-q", src},
+	})
+
+	if hasKnownHosts {
+		if strings.Contains(knownHosts, `'`) {
+			return fmt.Errorf("HOME contains single quote char, not supported")
+		}
+		if strings.Contains(knownHosts, `\`) {
+			return fmt.Errorf("HOME contains back slash char, not supported")
+		}
+
+		gitSSH := fmt.Sprintf(`ssh -o UserKnownHosts='%s'`, knownHosts)
+		osutil.CmdAddEnv(cmd, "GIT_SSH", gitSSH)
+	}
+
+	return cmd.Run()
 }
 
 func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
@@ -99,8 +133,12 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 	// set GIT_SSH to "ssh -o UserKnownHosts=~/.shanhu/ssh_known_hosts"
 
 	// fetch to smlrepo branch and then merge
+
+	if err := execGitFetch(env, srcDir, src); err != nil {
+		return false, err
+	}
+
 	if err := execAll(env, srcDir, [][]string{
-		{"git", "fetch", "-q", src},
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
 	}); err != nil {
@@ -108,8 +146,11 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 	}
 
 	if newRepo {
+		if err := execGitFetch(env, srcDir, "origin"); err != nil {
+			return false, err
+		}
+
 		if err := execAll(env, srcDir, [][]string{
-			{"git", "fetch", "-q", "origin"},
 			{
 				"git", "branch", "-q",
 				"--set-upstream-to=origin/master", "master",
