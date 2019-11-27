@@ -68,7 +68,7 @@ func execGitFetch(env *goenv.ExecEnv, srcDir string, src string) error {
 		}
 
 		gitSSH := fmt.Sprintf(`ssh -o UserKnownHosts='%s'`, knownHosts)
-		osutil.CmdAddEnv(cmd, "GIT_SSH", gitSSH)
+		osutil.CmdAddEnv(cmd, "GIT_SSH_COMMAND", gitSSH)
 	}
 
 	return cmd.Run()
