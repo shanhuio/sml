@@ -15,11 +15,19 @@ import (
 )
 
 func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
+	branches, err := env.StrOut(srcDir, "git", "branch")
+	if err != nil {
+		return "", fmt.Errorf("list branches: %s", err)
+	}
+	if strings.TrimSpace(branches) == "" {
+		return "", nil
+	}
+
 	ret, err := env.StrOut(
 		srcDir, "git", "show", "HEAD", "-s", "--format=%H",
 	)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("get HEAD commit: %s", err)
 	}
 	return strings.TrimSpace(ret), nil
 }
@@ -110,23 +118,29 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 			return false, nil
 		}
 
-		isAncestor, err := env.Call(
-			srcDir, "git", "merge-base", "--is-ancestor", commit, cur,
-		)
-		if err != nil {
-			return false, err
-		}
-		if isAncestor {
-			// merge will be a noop, just update smlrepo branch.
-			return false, env.Exec(
-				srcDir, "git", "branch", "-q", "-f", "smlrepo", commit,
+		if cur != "" {
+			isAncestor, err := env.Call(
+				srcDir, "git", "merge-base", "--is-ancestor", commit, cur,
+			)
+			if err != nil {
+				return false, err
+			}
+			if isAncestor {
+				// merge will be a noop, just update smlrepo branch.
+				return false, env.Exec(
+					srcDir, "git", "branch", "-q", "-f", "smlrepo", commit,
+				)
+			}
+
+			fmt.Printf(
+				"[%s..%s] %s\n",
+				idutil.Short(cur), idutil.Short(commit), repo,
+			)
+		} else {
+			fmt.Printf(
+				"[new %s] %s\n", idutil.Short(commit), repo,
 			)
 		}
-
-		fmt.Printf(
-			"[%s..%s] %s\n",
-			idutil.Short(cur), idutil.Short(commit), repo,
-		)
 	}
 
 	// TODO: when fetching, specify bitbucket known hosts:
