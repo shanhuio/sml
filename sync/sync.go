@@ -95,6 +95,9 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 		)
 	}
 
+	// TODO: when fetching, specify bitbucket known hosts:
+	// set GIT_SSH to "ssh -o UserKnownHosts=~/.shanhu/ssh_known_hosts"
+
 	// fetch to smlrepo branch and then merge
 	if err := execAll(env, srcDir, [][]string{
 		{"git", "fetch", "-q", src},
