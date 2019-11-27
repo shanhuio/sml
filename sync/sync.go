@@ -53,7 +53,7 @@ func execGitFetch(env *goenv.ExecEnv, srcDir string, src string) error {
 		return err
 	}
 
-	cmd := env.Cmd(&goenv.ExecJob{
+	cmd := env.PipedCmd(&goenv.ExecJob{
 		Dir:  srcDir,
 		Name: "git",
 		Args: []string{"fetch", "-q", src},
