@@ -6,33 +6,19 @@ import (
 	"fmt"
 	"os"
 
-	"shanhu.io/aries/creds"
 	"shanhu.io/misc/jsonutil"
-	"shanhu.io/sml/core"
-	"shanhu.io/sml/gitmap"
 	"shanhu.io/sml/sync"
 )
 
 type runner struct {
-	server   string
-	proj     string
-	stateMap func(s *core.State)
-	verbose  bool
+	remote  *sync.RemoteState
+	verbose bool
 }
 
 func (r *runner) run() error {
-	c, err := creds.Dial(r.server)
+	state, err := r.remote.Fetch()
 	if err != nil {
 		return err
-	}
-
-	state := new(core.State)
-	if err := c.JSONCall("/api/sync/proj", r.proj, state); err != nil {
-		return err
-	}
-
-	if r.stateMap != nil {
-		r.stateMap(state)
 	}
 
 	if r.verbose {
@@ -52,24 +38,19 @@ func main() {
 	verbose := flag.Bool("v", false, "print the state")
 	flag.Parse()
 
-	r := &runner{
-		server:  *server,
-		proj:    *proj,
-		verbose: *verbose,
+	remote := &sync.RemoteState{
+		Server:  *server,
+		Project: *proj,
+	}
+	if *mirror != "" {
+		remote.Transform = sync.MirrorSourceTransform(*mirror)
+	} else if *org != "" {
+		remote.Transform = sync.BitbucketSourceTransform(*org)
 	}
 
-	if *mirror != "" {
-		r.stateMap = func(s *core.State) {
-			srcs := make(map[string]string)
-			for repo := range s.Sources {
-				srcs[repo] = *mirror + "/" + repo
-			}
-			s.Sources = srcs
-		}
-	} else if *org != "" {
-		r.stateMap = func(s *core.State) {
-			gitmap.MapCoreState(s, gitmap.NewBitbucketPrivate(*org))
-		}
+	r := &runner{
+		remote:  remote,
+		verbose: *verbose,
 	}
 
 	if err := r.run(); err != nil {
