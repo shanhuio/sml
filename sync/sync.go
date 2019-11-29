@@ -3,7 +3,6 @@ package sync
 
 import (
 	"fmt"
-	"os/user"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -13,6 +12,13 @@ import (
 	"shanhu.io/sml/core"
 	"shanhu.io/sml/goenv"
 )
+
+// Syncer is a syncrhonizer that syncs the repos in GOPATH.
+type Syncer struct {
+	Env *goenv.ExecEnv
+
+	KnownHostsFile string
+}
 
 func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
 	branches, err := env.StrOut(srcDir, "git", "branch")
@@ -32,9 +38,9 @@ func currentCommit(env *goenv.ExecEnv, srcDir string) (string, error) {
 	return strings.TrimSpace(ret), nil
 }
 
-func execAll(env *goenv.ExecEnv, srcDir string, lines [][]string) error {
+func (s *Syncer) execAll(srcDir string, lines [][]string) error {
 	for _, args := range lines {
-		if err := env.Exec(srcDir, args[0], args[1:]...); err != nil {
+		if err := s.Env.Exec(srcDir, args[0], args[1:]...); err != nil {
 			return err
 		}
 	}
@@ -42,39 +48,38 @@ func execAll(env *goenv.ExecEnv, srcDir string, lines [][]string) error {
 	return nil
 }
 
-func execGitFetch(env *goenv.ExecEnv, srcDir string, src string) error {
-	u, err := user.Current()
-	if err != nil {
-		return fmt.Errorf("get current user: %s", err)
-	}
-	knownHosts := filepath.Join(u.HomeDir, ".shanhu/ssh_known_hosts")
-	hasKnownHosts, err := osutil.IsRegular(knownHosts)
-	if err != nil {
-		return err
-	}
-
-	cmd := env.PipedCmd(&goenv.ExecJob{
+func (s *Syncer) execGitFetch(srcDir, src string) error {
+	cmd := s.Env.PipedCmd(&goenv.ExecJob{
 		Dir:  srcDir,
 		Name: "git",
 		Args: []string{"fetch", "-q", src},
 	})
 
-	if hasKnownHosts {
-		if strings.Contains(knownHosts, `'`) {
-			return fmt.Errorf("HOME contains single quote char, not supported")
+	if s.KnownHostsFile != "" {
+		f := s.KnownHostsFile
+		if strings.Contains(f, `'`) {
+			return fmt.Errorf(`knownHostsFile has "'", not supported`)
 		}
-		if strings.Contains(knownHosts, `\`) {
-			return fmt.Errorf("HOME contains back slash char, not supported")
+		if strings.Contains(f, `\`) {
+			return fmt.Errorf(`KnownHostsFile has "\", not supported`)
+		}
+		hasKnownHosts, err := osutil.IsRegular(s.KnownHostsFile)
+		if err != nil {
+			return err
 		}
 
-		gitSSH := fmt.Sprintf(`ssh -o UserKnownHostsFile='%s'`, knownHosts)
-		osutil.CmdAddEnv(cmd, "GIT_SSH_COMMAND", gitSSH)
+		if hasKnownHosts {
+			gitSSH := fmt.Sprintf(
+				`ssh -o UserKnownHostsFile='%s'`, s.KnownHostsFile,
+			)
+			osutil.CmdAddEnv(cmd, "GIT_SSH_COMMAND", gitSSH)
+		}
 	}
 
 	return cmd.Run()
 }
 
-func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
+func (s *Syncer) syncRepo(repo, src, commit string) (bool, error) {
 	if strings.HasPrefix("commit", "hg/") {
 		err := fmt.Errorf(
 			"%q: mercurial repo support not implemented yet", repo,
@@ -82,24 +87,24 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 		return false, err
 	}
 	srcDir := goenv.SrcDir(repo)
-	if exist, err := env.IsDir(srcDir); err != nil {
+	if exist, err := s.Env.IsDir(srcDir); err != nil {
 		return false, err
 	} else if !exist {
-		if err := env.Exec("", "mkdir", "-p", srcDir); err != nil {
+		if err := s.Env.Exec("", "mkdir", "-p", srcDir); err != nil {
 			return false, err
 		}
 	}
 
 	newRepo := false
 	srcGitDir := filepath.Join(srcDir, ".git")
-	if exist, err := env.IsDir(srcGitDir); err != nil {
+	if exist, err := s.Env.IsDir(srcGitDir); err != nil {
 		return false, err
 	} else if !exist {
-		if err := env.Exec(srcDir, "git", "init", "-q"); err != nil {
+		if err := s.Env.Exec(srcDir, "git", "init", "-q"); err != nil {
 			return false, err
 		}
 
-		if err := env.Exec(
+		if err := s.Env.Exec(
 			srcDir, "git", "remote", "add", "origin", src,
 		); err != nil {
 			return false, err
@@ -110,7 +115,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 		)
 		newRepo = true
 	} else {
-		cur, err := currentCommit(env, srcDir)
+		cur, err := currentCommit(s.Env, srcDir)
 		if err != nil {
 			return false, err
 		}
@@ -119,7 +124,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 		}
 
 		if cur != "" {
-			isAncestor, err := env.Call(
+			isAncestor, err := s.Env.Call(
 				srcDir, "git", "merge-base", "--is-ancestor", commit, cur,
 			)
 			if err != nil {
@@ -127,7 +132,7 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 			}
 			if isAncestor {
 				// merge will be a noop, just update smlrepo branch.
-				return false, env.Exec(
+				return false, s.Env.Exec(
 					srcDir, "git", "branch", "-q", "-f", "smlrepo", commit,
 				)
 			}
@@ -148,11 +153,11 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 
 	// fetch to smlrepo branch and then merge
 
-	if err := execGitFetch(env, srcDir, src); err != nil {
+	if err := s.execGitFetch(srcDir, src); err != nil {
 		return false, fmt.Errorf("git fetch: %s", err)
 	}
 
-	if err := execAll(env, srcDir, [][]string{
+	if err := s.execAll(srcDir, [][]string{
 		{"git", "branch", "-q", "-f", "smlrepo", commit},
 		{"git", "merge", "-q", "smlrepo"},
 	}); err != nil {
@@ -160,11 +165,11 @@ func syncRepo(env *goenv.ExecEnv, repo, src, commit string) (bool, error) {
 	}
 
 	if newRepo {
-		if err := execGitFetch(env, srcDir, "origin"); err != nil {
+		if err := s.execGitFetch(srcDir, "origin"); err != nil {
 			return false, err
 		}
 
-		if err := execAll(env, srcDir, [][]string{
+		if err := s.execAll(srcDir, [][]string{
 			{
 				"git", "branch", "-q",
 				"--set-upstream-to=origin/master", "master",
@@ -188,8 +193,14 @@ func installThis(env *goenv.ExecEnv, auto *AutoInstall) error {
 	return env.Exec(goenv.SrcDir(auto.Pkg), "go", "install", auto.Pkg)
 }
 
-// Sync syncs to the desired state.
+// Sync syncs repos in GOPATH to the desired state.
 func Sync(env *goenv.ExecEnv, state *core.State, auto *AutoInstall) error {
+	s := &Syncer{Env: env}
+	return s.Sync(state, auto)
+}
+
+// Sync syncs repos in GOPATH to the desired state.
+func (s *Syncer) Sync(state *core.State, auto *AutoInstall) error {
 	fmt.Printf("#%d  [%s]\n", state.Clock, idutil.Short(state.ID))
 
 	if len(state.Commits) == 0 {
@@ -209,18 +220,18 @@ func Sync(env *goenv.ExecEnv, state *core.State, auto *AutoInstall) error {
 	}
 	sort.Strings(repos)
 
-	if env == nil {
+	if s.Env == nil {
 		gopath, err := goenv.GOPATH()
 		if err != nil {
 			return err
 		}
-		env = goenv.NewExecEnv(gopath)
+		s.Env = goenv.NewExecEnv(gopath)
 	}
 
 	for _, repo := range repos {
 		commit := state.Commits[repo]
 		src := state.Sources[repo]
-		if _, err := syncRepo(env, repo, src, commit); err != nil {
+		if _, err := s.syncRepo(repo, src, commit); err != nil {
 			return fmt.Errorf(
 				"sync repo %q from %q to commit %q: %s",
 				repo, src, idutil.Short(commit), err,
@@ -229,7 +240,7 @@ func Sync(env *goenv.ExecEnv, state *core.State, auto *AutoInstall) error {
 	}
 
 	if auto != nil {
-		if err := installThis(env, auto); err != nil {
+		if err := installThis(s.Env, auto); err != nil {
 			return err
 		}
 	}

@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/user"
+	"path/filepath"
 
 	"shanhu.io/misc/jsonutil"
 	"shanhu.io/sml/sync"
@@ -13,6 +15,14 @@ import (
 type runner struct {
 	remote  *sync.RemoteState
 	verbose bool
+}
+
+func knownHostsFile() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", fmt.Errorf("get current user: %s", err)
+	}
+	return filepath.Join(u.HomeDir, ".shanhu/ssh_known_hosts"), nil
 }
 
 func (r *runner) run() error {
@@ -25,7 +35,14 @@ func (r *runner) run() error {
 		jsonutil.Print(state)
 	}
 
-	return sync.Sync(nil, state, nil)
+	knownHosts, err := knownHostsFile()
+	if err != nil {
+		return err
+	}
+	syncer := &sync.Syncer{
+		KnownHostsFile: knownHosts,
+	}
+	return syncer.Sync(state, nil)
 }
 
 func main() {
