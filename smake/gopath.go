@@ -32,18 +32,23 @@ func pkgFromDir(src, dir string) (string, error) {
 	return filepath.FromSlash(p), nil
 }
 
-func relPkgs(rootPkg string, pkgs []string) ([]string, error) {
-	var ret []string
+type relPkg struct {
+	abs string
+	rel string
+}
+
+func relPkgs(rootPkg string, pkgs []string) ([]*relPkg, error) {
+	var ret []*relPkg
 	prefix := rootPkg + "/"
 	for _, pkg := range pkgs {
 		if pkg == rootPkg {
-			ret = append(ret, ".")
+			ret = append(ret, &relPkg{abs: pkg, rel: "."})
 			continue
 		}
 
 		if strings.HasPrefix(pkg, prefix) {
 			rel := strings.TrimPrefix(pkg, prefix)
-			ret = append(ret, "./"+rel)
+			ret = append(ret, &relPkg{abs: pkg, rel: "./" + rel})
 			continue
 		}
 

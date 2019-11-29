@@ -2,18 +2,22 @@ package smake
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/lint"
 	"shanhu.io/misc/goload"
+	"shanhu.io/tools/gocheck"
 )
 
 type context struct {
 	gopath string
 	dir    string
 	env    []string
+	errLog io.Writer
 }
 
 func newContext(gopath, dir string) *context {
@@ -29,6 +33,7 @@ func newContext(gopath, dir string) *context {
 		gopath: gopath,
 		dir:    dir,
 		env:    env,
+		errLog: os.Stderr,
 	}
 }
 
@@ -36,13 +41,15 @@ func (c *context) srcRoot() string {
 	return filepath.Join(c.gopath, "src")
 }
 
-func (c *context) execPkgs(pkgs []string, tasks [][]string) error {
+func (c *context) execPkgs(pkgs []*relPkg, tasks [][]string) error {
 	for _, args := range tasks {
 		line := strings.Join(args, " ")
 		fmt.Println(line)
 
 		if len(pkgs) > 0 {
-			args = append(args, pkgs...)
+			for _, pkg := range pkgs {
+				args = append(args, pkg.rel)
+			}
 		}
 		p, err := exec.LookPath(args[0])
 		if err != nil {
@@ -64,18 +71,68 @@ func (c *context) execPkgs(pkgs []string, tasks [][]string) error {
 	return nil
 }
 
+func (c *context) smlchk(pkgs []*relPkg) error {
+	fmt.Fprintln(c.errLog, "smlchk")
+
+	const textHeight = 300
+	const textWidth = 80
+
+	for _, pkg := range pkgs {
+		errs := gocheck.CheckAll(pkg.abs, textHeight, textWidth)
+		if len(errs) != 0 {
+			for _, err := range errs {
+				fmt.Fprintln(c.errLog, err)
+			}
+			return fmt.Errorf("smlchk %q failed", pkg)
+		}
+	}
+	return nil
+}
+
+func (c *context) lint(pkgs []*relPkg) error {
+	fmt.Fprintln(c.errLog, "lint")
+
+	const minConfidence = 0.8
+	for _, pkg := range pkgs {
+		files, err := fileSourceMap(pkg.abs)
+		if err != nil {
+			return err
+		}
+
+		l := new(lint.Linter)
+		ps, err := l.LintFiles(files)
+		if err != nil {
+			return err
+		}
+
+		errCount := 0
+		for _, p := range ps {
+			if p.Confidence < minConfidence {
+				continue
+			}
+			fmt.Fprintf(c.errLog, "%v: %s\n", p.Position, p.Text)
+			errCount++
+		}
+
+		if errCount > 0 {
+			return fmt.Errorf("lint %q failed", pkg.rel)
+		}
+	}
+	return nil
+}
+
 func (c *context) smake() error {
 	rootPkg, err := pkgFromDir(c.srcRoot(), c.dir)
 	if err != nil {
 		return err
 	}
 
-	pkgs, err := goload.ListPkgs(rootPkg)
+	absPkgs, err := goload.ListPkgs(rootPkg)
 	if err != nil {
 		return err
 	}
 
-	pkgs, err = relPkgs(rootPkg, pkgs)
+	pkgs, err := relPkgs(rootPkg, absPkgs)
 	if err != nil {
 		return err
 	}
@@ -87,14 +144,14 @@ func (c *context) smake() error {
 		return err
 	}
 
-	if err := c.execPkgs(nil, [][]string{
-		{"smlchk", fmt.Sprintf("-path=%s", rootPkg)},
-	}); err != nil {
+	if err := c.smlchk(pkgs); err != nil {
+		return err
+	}
+	if err := c.lint(pkgs); err != nil {
 		return err
 	}
 
 	return c.execPkgs(pkgs, [][]string{
-		{"golint"},
 		{"go", "vet"},
 		{"gotags", "-R", "-f=tags"},
 	})
