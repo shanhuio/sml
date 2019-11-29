@@ -4,11 +4,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
 
 	"shanhu.io/misc/jsonutil"
+	"shanhu.io/misc/osutil"
 	"shanhu.io/sml/sync"
 )
 
@@ -39,6 +41,25 @@ func (r *runner) run() error {
 	if err != nil {
 		return err
 	}
+
+	found, err := osutil.Exist(knownHosts)
+	if err != nil {
+		return fmt.Errorf("check %q: %s", knownHosts, err)
+	}
+	if !found {
+		fmt.Fprintln(os.Stderr, "Writing known hosts file for first run")
+		dir := filepath.Dir(knownHosts)
+		if err := os.MkdirAll(dir, 0700); err != nil {
+			return fmt.Errorf("create dir %q: %s", dir, err)
+		}
+
+		if err := ioutil.WriteFile(
+			knownHosts, []byte(knownHostsContent), 0600,
+		); err != nil {
+			return fmt.Errorf("write known hosts %q: %s", knownHosts, err)
+		}
+	}
+
 	syncer := &sync.Syncer{
 		KnownHostsFile: knownHosts,
 	}
