@@ -83,7 +83,7 @@ func (c *context) smlchk(pkgs []*relPkg) error {
 			for _, err := range errs {
 				fmt.Fprintln(c.errLog, err)
 			}
-			return fmt.Errorf("smlchk %q failed", pkg)
+			return fmt.Errorf("smlchk %q failed", pkg.rel)
 		}
 	}
 	return nil
