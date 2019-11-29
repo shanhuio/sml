@@ -3,17 +3,22 @@ package gotags
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
 )
 
-// WriteTags writes the tag file out.
-func WriteTags(basedir string, files []string, outputFile string) error {
-	const relative = false
+// Write writes the tag file out.
+func Write(files []string, outputFile string) error {
+	const relative = true
+	baseDir, err := filepath.Abs(".")
+	if err != nil {
+		return fmt.Errorf("get current working dir: %s", err)
+	}
 
 	tags := []Tag{}
 	for _, file := range files {
-		ts, err := Parse(file, relative, basedir)
+		ts, err := Parse(file, relative, baseDir)
 		if err != nil {
 			return fmt.Errorf("parse: %s", err)
 		}

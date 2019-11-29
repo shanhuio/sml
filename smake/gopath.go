@@ -2,9 +2,12 @@ package smake
 
 import (
 	"fmt"
+	"go/build"
+	"path/filepath"
+	"sort"
 	"strings"
 
-	"path/filepath"
+	"shanhu.io/misc/goload"
 	"shanhu.io/sml/goenv"
 )
 
@@ -35,20 +38,34 @@ func pkgFromDir(src, dir string) (string, error) {
 type relPkg struct {
 	abs string
 	rel string
+	pkg *build.Package
 }
 
-func relPkgs(rootPkg string, pkgs []string) ([]*relPkg, error) {
+func relPkgs(rootPkg string, scanRes *goload.ScanResult) ([]*relPkg, error) {
+	var pkgs []string
+	for pkg := range scanRes.Pkgs {
+		pkgs = append(pkgs, pkg)
+	}
+	sort.Strings(pkgs)
+
 	var ret []*relPkg
 	prefix := rootPkg + "/"
+
 	for _, pkg := range pkgs {
+		rel := &relPkg{
+			abs: pkg,
+			pkg: scanRes.Pkgs[pkg].Build,
+		}
+
 		if pkg == rootPkg {
-			ret = append(ret, &relPkg{abs: pkg, rel: "."})
+			rel.rel = "."
+			ret = append(ret, rel)
 			continue
 		}
 
 		if strings.HasPrefix(pkg, prefix) {
-			rel := strings.TrimPrefix(pkg, prefix)
-			ret = append(ret, &relPkg{abs: pkg, rel: "./" + rel})
+			rel.rel = "./" + strings.TrimPrefix(pkg, prefix)
+			ret = append(ret, rel)
 			continue
 		}
 

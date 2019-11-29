@@ -10,6 +10,7 @@ import (
 
 	"golang.org/x/lint"
 	"shanhu.io/misc/goload"
+	"shanhu.io/sml/gotags"
 	"shanhu.io/tools/gocheck"
 )
 
@@ -94,7 +95,7 @@ func (c *context) lint(pkgs []*relPkg) error {
 
 	const minConfidence = 0.8
 	for _, pkg := range pkgs {
-		files, err := fileSourceMap(pkg.abs)
+		files, err := fileSourceMap(pkg)
 		if err != nil {
 			return err
 		}
@@ -121,18 +122,29 @@ func (c *context) lint(pkgs []*relPkg) error {
 	return nil
 }
 
+func (c *context) tags(pkgs []*relPkg) error {
+	fmt.Fprintln(c.errLog, "tags")
+
+	var files []string
+	for _, pkg := range pkgs {
+		list := listAbsFiles(pkg.pkg)
+		files = append(files, list...)
+	}
+	return gotags.Write(files, "tags")
+}
+
 func (c *context) smake() error {
 	rootPkg, err := pkgFromDir(c.srcRoot(), c.dir)
 	if err != nil {
 		return err
 	}
 
-	absPkgs, err := goload.ListPkgs(rootPkg)
+	scanRes, err := goload.ScanPkgs(rootPkg, nil)
 	if err != nil {
 		return err
 	}
 
-	pkgs, err := relPkgs(rootPkg, absPkgs)
+	pkgs, err := relPkgs(rootPkg, scanRes)
 	if err != nil {
 		return err
 	}
@@ -151,8 +163,11 @@ func (c *context) smake() error {
 		return err
 	}
 
-	return c.execPkgs(pkgs, [][]string{
+	if err := c.execPkgs(pkgs, [][]string{
 		{"go", "vet"},
-		{"gotags", "-R", "-f=tags"},
-	})
+	}); err != nil {
+		return err
+	}
+
+	return c.tags(pkgs)
 }

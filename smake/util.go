@@ -7,29 +7,28 @@ import (
 	"path/filepath"
 )
 
-func listFiles(imported *build.Package) ([]string, error) {
+func listFiles(pkg *build.Package) []string {
 	var files []string
-	files = append(files, imported.GoFiles...)
-	files = append(files, imported.CgoFiles...)
-	files = append(files, imported.TestGoFiles...)
-	return files, nil
+	files = append(files, pkg.GoFiles...)
+	files = append(files, pkg.CgoFiles...)
+	files = append(files, pkg.TestGoFiles...)
+	return files
 }
 
-func fileSourceMap(pkg string) (map[string][]byte, error) {
-	imported, err := build.Import(pkg, "", 0)
-	if err != nil {
-		return nil, err
+func listAbsFiles(pkg *build.Package) []string {
+	files := listFiles(pkg)
+	for i, f := range files {
+		files[i] = filepath.Join(pkg.Dir, f)
 	}
+	return files
+}
 
-	files, err := listFiles(imported)
-	if err != nil {
-		return nil, err
-	}
-
+func fileSourceMap(pkg *relPkg) (map[string][]byte, error) {
+	files := listFiles(pkg.pkg)
 	fileMap := make(map[string][]byte)
 
 	for _, f := range files {
-		path := filepath.Join(imported.Dir, f)
+		path := filepath.Join(pkg.pkg.Dir, f)
 		src, err := ioutil.ReadFile(path)
 		if err != nil {
 			return nil, fmt.Errorf("read %q: %s", path, err)
