@@ -15,8 +15,9 @@ import (
 )
 
 type runner struct {
-	remote  *sync.RemoteState
-	verbose bool
+	remote     *sync.RemoteState
+	verbose    bool
+	knownHosts string
 }
 
 func knownHostsFile() (string, error) {
@@ -37,31 +38,30 @@ func (r *runner) run() error {
 		jsonutil.Print(state)
 	}
 
-	knownHosts, err := knownHostsFile()
-	if err != nil {
-		return err
-	}
-
-	found, err := osutil.Exist(knownHosts)
-	if err != nil {
-		return fmt.Errorf("check %q: %s", knownHosts, err)
-	}
-	if !found {
-		fmt.Fprintln(os.Stderr, "Writing known hosts file for first run")
-		dir := filepath.Dir(knownHosts)
-		if err := os.MkdirAll(dir, 0700); err != nil {
-			return fmt.Errorf("create dir %q: %s", dir, err)
+	if r.knownHosts != "" {
+		found, err := osutil.Exist(r.knownHosts)
+		if err != nil {
+			return fmt.Errorf("check %q: %s", r.knownHosts, err)
 		}
+		if !found {
+			fmt.Fprintln(os.Stderr, "Writing known hosts file for first run")
+			dir := filepath.Dir(r.knownHosts)
+			if err := os.MkdirAll(dir, 0700); err != nil {
+				return fmt.Errorf("create dir %q: %s", dir, err)
+			}
 
-		if err := ioutil.WriteFile(
-			knownHosts, []byte(knownHostsContent), 0600,
-		); err != nil {
-			return fmt.Errorf("write known hosts %q: %s", knownHosts, err)
+			if err := ioutil.WriteFile(
+				r.knownHosts, []byte(knownHostsContent), 0600,
+			); err != nil {
+				return fmt.Errorf(
+					"write known hosts %q: %s", r.knownHosts, err,
+				)
+			}
 		}
 	}
 
 	syncer := &sync.Syncer{
-		KnownHostsFile: knownHosts,
+		KnownHostsFile: r.knownHosts,
 	}
 	return syncer.Sync(state, nil)
 }
@@ -89,6 +89,15 @@ func main() {
 	r := &runner{
 		remote:  remote,
 		verbose: *verbose,
+	}
+
+	if *mirror == "" {
+		knownHosts, err := knownHostsFile()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		r.knownHosts = knownHosts
 	}
 
 	if err := r.run(); err != nil {
