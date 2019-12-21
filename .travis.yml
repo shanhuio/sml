@@ -1,0 +1,15 @@
+sudo: false
+language: go
+go_import_path: shanhu.io/misc
+
+go:
+    - "1.13"
+
+install:
+    - env GO111MODULE=off go get ./...
+    - env GO111MODULE=off go get shanhu.io/sml/cmd/smake
+
+script:
+    - test -z `gofmt -s -l .`
+    - env GO111MODULE=off go test ./...
+    - env GO111MODULE=off smake
