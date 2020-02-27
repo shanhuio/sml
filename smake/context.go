@@ -151,7 +151,7 @@ func (c *context) smake() error {
 
 	if err := c.execPkgs(pkgs, [][]string{
 		{"gofmt", "-s", "-w", "-l"},
-		{"go", "install", "-i"},
+		{"go", "install"},
 	}); err != nil {
 		return err
 	}
