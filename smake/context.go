@@ -44,6 +44,10 @@ func (c *context) srcRoot() string {
 
 func (c *context) execPkgs(pkgs []*relPkg, tasks [][]string) error {
 	for _, args := range tasks {
+		if len(args) == 0 {
+			continue
+		}
+
 		line := strings.Join(args, " ")
 		fmt.Println(line)
 
@@ -64,7 +68,6 @@ func (c *context) execPkgs(pkgs []*relPkg, tasks [][]string) error {
 			Stderr: os.Stderr,
 			Env:    c.env,
 		}
-
 		if err := cmd.Run(); err != nil {
 			return err
 		}
