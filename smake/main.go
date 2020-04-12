@@ -3,14 +3,31 @@ package smake // import "shanhu.io/sml/smake"
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func smake() error {
+	d, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	abs, err := filepath.Abs(d)
+	if err != nil {
+		return err
+	}
+	realAbs, err := filepath.EvalSymlinks(abs)
+	if err != nil {
+		return err
+	}
+	if err := os.Chdir(realAbs); err != nil {
+		return err
+	}
+
 	gopath, err := absGOPATH()
 	if err != nil {
 		return err
 	}
-	c := newContext(gopath, ".")
+	c := newContext(gopath, realAbs)
 	return c.smake()
 }
 
