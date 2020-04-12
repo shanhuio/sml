@@ -6,20 +6,24 @@ import (
 	"path/filepath"
 )
 
+func workDir() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	abs, err := filepath.Abs(wd)
+	if err != nil {
+		return "", err
+	}
+	return filepath.EvalSymlinks(abs)
+}
+
 func smake() error {
-	d, err := os.Getwd()
+	wd, err := workDir()
 	if err != nil {
 		return err
 	}
-	abs, err := filepath.Abs(d)
-	if err != nil {
-		return err
-	}
-	realAbs, err := filepath.EvalSymlinks(abs)
-	if err != nil {
-		return err
-	}
-	if err := os.Chdir(realAbs); err != nil {
+	if err := os.Chdir(wd); err != nil {
 		return err
 	}
 
@@ -27,7 +31,7 @@ func smake() error {
 	if err != nil {
 		return err
 	}
-	c := newContext(gopath, realAbs)
+	c := newContext(gopath, wd)
 	return c.smake()
 }
 
