@@ -83,7 +83,7 @@ func main() {
 	if *mirror != "" {
 		remote.Transform = sync.MirrorSourceTransform(*mirror)
 	} else if *org != "" {
-		remote.Transform = sync.BitbucketSourceTransform(*org)
+		remote.Transform = sync.PrivateSourceTransform(*org)
 	}
 
 	r := &runner{

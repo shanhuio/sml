@@ -17,10 +17,11 @@ func MirrorSourceTransform(mirror string) func(s *core.State) {
 	}
 }
 
-// BitbucketSourceTransform maps repo soruces in a bitbucket org from https to
-// git+ssh format.
-func BitbucketSourceTransform(org string) func(s *core.State) {
+// PrivateSourceTransform maps repo soruces in a Bitbucket and GitHub org from
+// https to git+ssh format.
+func PrivateSourceTransform(org string) func(s *core.State) {
 	return func(s *core.State) {
 		gitmap.MapCoreState(s, gitmap.NewBitbucketPrivate(org))
+		gitmap.MapCoreState(s, gitmap.NewGitHubPrivate(org))
 	}
 }
