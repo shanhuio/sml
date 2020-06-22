@@ -1,4 +1,3 @@
-// Command smlsync synchronizes GOPATH repositories to forge.shanhu.io HEAD.
 package main
 
 import (
@@ -68,7 +67,7 @@ func (r *runner) run() error {
 
 func main() {
 	server := flag.String(
-		"server", "https://forge.shanhu.io", "Server address.",
+		"server", "https://src.shanhu.io", "Server address.",
 	)
 	org := flag.String("org", "shanhuio", "Default private org on bitbucket.")
 	mirror := flag.String("mirror", "", "Sync from this mirror machine.")
