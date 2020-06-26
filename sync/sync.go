@@ -52,7 +52,7 @@ func (s *Syncer) execGitFetch(srcDir, src string) error {
 	cmd := s.Env.PipedCmd(&goenv.ExecJob{
 		Dir:  srcDir,
 		Name: "git",
-		Args: []string{"fetch", "-q", src},
+		Args: []string{"fetch", "-q", src, "master"},
 	})
 
 	if s.KnownHostsFile != "" {
