@@ -52,7 +52,7 @@ func (s *Syncer) execGitFetch(srcDir, src string) error {
 	cmd := s.Env.PipedCmd(&goenv.ExecJob{
 		Dir:  srcDir,
 		Name: "git",
-		Args: []string{"fetch", "-q", src, "master"},
+		Args: []string{"fetch", "-q", src, "HEAD"},
 	})
 
 	if s.KnownHostsFile != "" {
@@ -148,9 +148,6 @@ func (s *Syncer) syncRepo(repo, src, commit string) (bool, error) {
 		}
 	}
 
-	// TODO: when fetching, specify bitbucket known hosts:
-	// set GIT_SSH to "ssh -o UserKnownHosts=~/.shanhu/ssh_known_hosts"
-
 	// fetch to smlrepo branch and then merge
 
 	if err := s.execGitFetch(srcDir, src); err != nil {
@@ -172,7 +169,7 @@ func (s *Syncer) syncRepo(repo, src, commit string) (bool, error) {
 		if err := s.execAll(srcDir, [][]string{
 			{
 				"git", "branch", "-q",
-				"--set-upstream-to=origin/master", "master",
+				"--set-upstream-to=remotes/origin/HEAD", "master",
 			},
 		}); err != nil {
 			return false, fmt.Errorf("git setup origin: %s", err)
