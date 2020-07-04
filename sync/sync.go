@@ -166,12 +166,9 @@ func (s *Syncer) syncRepo(repo, src, commit string) (bool, error) {
 			return false, err
 		}
 
-		if err := s.execAll(srcDir, [][]string{
-			{
-				"git", "branch", "-q",
-				"--set-upstream-to=remotes/origin/HEAD", "master",
-			},
-		}); err != nil {
+		if err := s.execAll(srcDir, [][]string{{
+			"git", "branch", "-q", "master",
+		}}); err != nil {
 			return false, fmt.Errorf("git setup origin: %s", err)
 		}
 	}
