@@ -165,12 +165,6 @@ func (s *Syncer) syncRepo(repo, src, commit string) (bool, error) {
 		if err := s.execGitFetch(srcDir, "origin"); err != nil {
 			return false, err
 		}
-
-		if err := s.execAll(srcDir, [][]string{{
-			"git", "branch", "-q", "-f", "master",
-		}}); err != nil {
-			return false, fmt.Errorf("git setup origin: %s", err)
-		}
 	}
 
 	return true, nil
