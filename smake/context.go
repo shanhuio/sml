@@ -29,6 +29,7 @@ func newContext(gopath, dir string) *context {
 	if s := os.Getenv("HOME"); s != "" {
 		env = append(env, fmt.Sprintf("HOME=%s", s))
 	}
+	env = append(env, "GO111MODULE=off")
 
 	return &context{
 		gopath: gopath,
@@ -154,7 +155,7 @@ func (c *context) smake() error {
 
 	if err := c.execPkgs(pkgs, [][]string{
 		{"gofmt", "-s", "-w", "-l"},
-		{"go", "install", "-i"},
+		{"go", "install"},
 	}); err != nil {
 		return err
 	}
