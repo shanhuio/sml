@@ -40,6 +40,8 @@ func newContext(gopath, dir string, gomod bool) *context {
 	}
 }
 
+func (c *context) workDir() string { return c.dir }
+
 func (c *context) gomod() bool { return c.mod }
 
 func (c *context) srcRoot() string { return filepath.Join(c.gopath, "src") }

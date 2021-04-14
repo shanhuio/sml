@@ -72,20 +72,29 @@ func tags(c *context, pkgs []*relPkg) error {
 }
 
 func listModPkgs(c *context) ([]*relPkg, error) {
-	return nil, errcode.Internalf("not implemented")
+	mod, err := findGoModule(c.workDir())
+	if err != nil {
+		return nil, errcode.Annotate(err, "find module")
+	}
+
+	scanRes, err := goload.ScanModPkgs(mod.name, mod.dir, nil)
+	if err != nil {
+		return nil, errcode.Annotate(err, "scan packages")
+	}
+	return relPkgs(mod.name, scanRes)
 }
 
 func listPkgs(c *context) ([]*relPkg, error) {
 	if c.gomod() {
 		return listModPkgs(c)
 	}
+
 	rootPkg, err := pkgFromDir(c.srcRoot(), c.dir)
 	if err != nil {
 		return nil, errcode.Annotate(err, "find root package")
 	}
 
-	scanOpts := &goload.ScanOptions{GoMod: c.gomod()}
-	scanRes, err := goload.ScanPkgs(rootPkg, scanOpts)
+	scanRes, err := goload.ScanPkgs(rootPkg, nil)
 	if err != nil {
 		return nil, errcode.Annotate(err, "scan packages")
 	}
