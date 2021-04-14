@@ -117,9 +117,14 @@ func smake(c *context) error {
 		return nil
 	}
 
+	installCmd := []string{"go", "install"}
+	if !c.gomod() {
+		installCmd = append(installCmd, "-i")
+	}
+
 	if err := c.execPkgs(pkgs, [][]string{
 		{"gofmt", "-s", "-w", "-l"},
-		{"go", "install", "-i"},
+		installCmd,
 	}); err != nil {
 		return err
 	}
