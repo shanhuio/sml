@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	lintpkg "golang.org/x/lint"
+	"shanhu.io/misc/errcode"
 	"shanhu.io/misc/goload"
 	"shanhu.io/sml/gotags"
 	"shanhu.io/tools/gocheck"
@@ -70,22 +71,34 @@ func tags(c *context, pkgs []*relPkg) error {
 	return gotags.Write(files, "tags")
 }
 
-func smake(c *context) error {
+func listModPkgs(c *context) ([]*relPkg, error) {
+	return nil, errcode.Internalf("not implemented")
+}
+
+func listPkgs(c *context) ([]*relPkg, error) {
+	if c.gomod() {
+		return listModPkgs(c)
+	}
 	rootPkg, err := pkgFromDir(c.srcRoot(), c.dir)
 	if err != nil {
-		return err
+		return nil, errcode.Annotate(err, "find root package")
 	}
 
 	scanOpts := &goload.ScanOptions{GoMod: c.gomod()}
 	scanRes, err := goload.ScanPkgs(rootPkg, scanOpts)
 	if err != nil {
-		return err
+		return nil, errcode.Annotate(err, "scan packages")
 	}
 
-	pkgs, err := relPkgs(rootPkg, scanRes)
+	return relPkgs(rootPkg, scanRes)
+}
+
+func smake(c *context) error {
+	pkgs, err := listPkgs(c)
 	if err != nil {
-		return err
+		return errcode.Annotate(err, "list packages")
 	}
+
 	if len(pkgs) == 0 {
 		c.logln("no packages found")
 		return nil
