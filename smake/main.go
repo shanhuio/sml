@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"shanhu.io/misc/errcode"
 )
 
 func workDir() (string, error) {
@@ -32,6 +34,16 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
+	mod := usingGoMod()
+	if mod {
+		root, err := findGoModuleRoot(wd)
+		if err != nil {
+			return errcode.Annotate(err, "find module root")
+		}
+		wd = root
+	}
+
 	if err := os.Chdir(wd); err != nil {
 		return err
 	}

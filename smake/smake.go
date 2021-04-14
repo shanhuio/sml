@@ -2,10 +2,12 @@ package smake
 
 import (
 	"fmt"
+	"path/filepath"
 
 	lintpkg "golang.org/x/lint"
 	"shanhu.io/misc/errcode"
 	"shanhu.io/misc/goload"
+	"shanhu.io/misc/gomod"
 	"shanhu.io/sml/gotags"
 	"shanhu.io/tools/gocheck"
 )
@@ -72,16 +74,18 @@ func tags(c *context, pkgs []*relPkg) error {
 }
 
 func listModPkgs(c *context) ([]*relPkg, error) {
-	mod, err := findGoModule(c.workDir())
+	root := c.workDir()
+	modFile := filepath.Join(root, "go.mod")
+	mod, err := gomod.Parse(modFile)
 	if err != nil {
-		return nil, errcode.Annotate(err, "find module")
+		return nil, errcode.Annotate(err, "parse go.mod")
 	}
 
-	scanRes, err := goload.ScanModPkgs(mod.name, mod.dir, nil)
+	scanRes, err := goload.ScanModPkgs(mod.Name, root, nil)
 	if err != nil {
 		return nil, errcode.Annotate(err, "scan packages")
 	}
-	return relPkgs(mod.name, scanRes)
+	return relPkgs(mod.Name, scanRes)
 }
 
 func listPkgs(c *context) ([]*relPkg, error) {
