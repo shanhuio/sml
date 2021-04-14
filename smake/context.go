@@ -16,7 +16,7 @@ type context struct {
 	errLog io.Writer
 }
 
-func newContext(gopath, dir string) *context {
+func newContext(gopath, dir string, gomod bool) *context {
 	env := []string{fmt.Sprintf("GOPATH=%s", gopath)}
 	if s := os.Getenv("PATH"); s != "" {
 		env = append(env, fmt.Sprintf("PATH=%s", s))
@@ -24,7 +24,11 @@ func newContext(gopath, dir string) *context {
 	if s := os.Getenv("HOME"); s != "" {
 		env = append(env, fmt.Sprintf("HOME=%s", s))
 	}
-	env = append(env, "GO111MODULE=off")
+	if !gomod {
+		env = append(env, "GO111MODULE=off")
+	} else {
+		env = append(env, "GO111MODULE=on")
+	}
 
 	return &context{
 		gopath: gopath,

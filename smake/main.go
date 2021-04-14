@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func workDir() (string, error) {
@@ -16,6 +17,14 @@ func workDir() (string, error) {
 		return "", err
 	}
 	return filepath.EvalSymlinks(abs)
+}
+
+func usingGoMod() bool {
+	v, ok := os.LookupEnv("GO111MODULE")
+	if !ok {
+		return false
+	}
+	return strings.ToLower(v) != "off"
 }
 
 func run() error {
@@ -31,7 +40,8 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	c := newContext(gopath, wd)
+
+	c := newContext(gopath, wd, usingGoMod())
 	return smake(c)
 }
 
