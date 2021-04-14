@@ -18,7 +18,7 @@ func workDir() (string, error) {
 	return filepath.EvalSymlinks(abs)
 }
 
-func smake() error {
+func run() error {
 	wd, err := workDir()
 	if err != nil {
 		return err
@@ -32,12 +32,12 @@ func smake() error {
 		return err
 	}
 	c := newContext(gopath, wd)
-	return c.smake()
+	return smake(c)
 }
 
 // Main is the entry point for smake.
 func Main() {
-	if err := smake(); err != nil {
+	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

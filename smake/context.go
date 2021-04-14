@@ -7,11 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"golang.org/x/lint"
-	"shanhu.io/misc/goload"
-	"shanhu.io/sml/gotags"
-	"shanhu.io/tools/gocheck"
 )
 
 type context struct {
@@ -76,102 +71,10 @@ func (c *context) execPkgs(pkgs []*relPkg, tasks [][]string) error {
 	return nil
 }
 
-func (c *context) smlchk(pkgs []*relPkg) error {
-	fmt.Fprintln(c.errLog, "smlchk")
-
-	const textHeight = 300
-	const textWidth = 80
-
-	for _, pkg := range pkgs {
-		errs := gocheck.CheckAll(pkg.abs, textHeight, textWidth)
-		if len(errs) != 0 {
-			for _, err := range errs {
-				fmt.Fprintln(c.errLog, err)
-			}
-			return fmt.Errorf("smlchk %q failed", pkg.rel)
-		}
-	}
-	return nil
+func (c *context) logf(f string, args ...interface{}) {
+	fmt.Fprintf(c.errLog, f, args...)
 }
 
-func (c *context) lint(pkgs []*relPkg) error {
-	fmt.Fprintln(c.errLog, "lint")
-
-	const minConfidence = 0.8
-	for _, pkg := range pkgs {
-		files, err := fileSourceMap(pkg)
-		if err != nil {
-			return err
-		}
-
-		l := new(lint.Linter)
-		ps, err := l.LintFiles(files)
-		if err != nil {
-			return err
-		}
-
-		errCount := 0
-		for _, p := range ps {
-			if p.Confidence < minConfidence {
-				continue
-			}
-			fmt.Fprintf(c.errLog, "%v: %s\n", p.Position, p.Text)
-			errCount++
-		}
-
-		if errCount > 0 {
-			return fmt.Errorf("lint %q failed", pkg.rel)
-		}
-	}
-	return nil
-}
-
-func (c *context) tags(pkgs []*relPkg) error {
-	fmt.Fprintln(c.errLog, "tags")
-
-	var files []string
-	for _, pkg := range pkgs {
-		list := listAbsFiles(pkg.pkg)
-		files = append(files, list...)
-	}
-	return gotags.Write(files, "tags")
-}
-
-func (c *context) smake() error {
-	rootPkg, err := pkgFromDir(c.srcRoot(), c.dir)
-	if err != nil {
-		return err
-	}
-
-	scanRes, err := goload.ScanPkgs(rootPkg, nil)
-	if err != nil {
-		return err
-	}
-
-	pkgs, err := relPkgs(rootPkg, scanRes)
-	if err != nil {
-		return err
-	}
-
-	if err := c.execPkgs(pkgs, [][]string{
-		{"gofmt", "-s", "-w", "-l"},
-		{"go", "install", "-i"},
-	}); err != nil {
-		return err
-	}
-
-	if err := c.smlchk(pkgs); err != nil {
-		return err
-	}
-	if err := c.lint(pkgs); err != nil {
-		return err
-	}
-
-	if err := c.execPkgs(pkgs, [][]string{
-		{"go", "vet"},
-	}); err != nil {
-		return err
-	}
-
-	return c.tags(pkgs)
+func (c *context) logln(args ...interface{}) {
+	fmt.Fprintln(c.errLog, args...)
 }
