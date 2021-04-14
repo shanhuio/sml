@@ -515,6 +515,8 @@ shanhu.io/misc v0.0.0-20210412000542-0629e6708c95 h1:iEfEJ2GqBhyXf8DD51mn6tUS4qs
 shanhu.io/misc v0.0.0-20210412000542-0629e6708c95/go.mod h1:BfyvRFQTuaoNiyYe2NK/cNWlQjPdUPfOmDLcUhNQOqs=
 shanhu.io/misc v0.0.0-20210414035648-8ff0bc799bd9 h1:HFABZ8yplAlJM+Ra38kBGzb7on1Ir7zsTkL1PVi/Iyw=
 shanhu.io/misc v0.0.0-20210414035648-8ff0bc799bd9/go.mod h1:BfyvRFQTuaoNiyYe2NK/cNWlQjPdUPfOmDLcUhNQOqs=
+shanhu.io/misc v0.0.0-20210414052358-79c7889f9f0a h1:WdyiMsG4E3GBjto8yyylKPUzlVrtXVcdmDTzGyG2mgc=
+shanhu.io/misc v0.0.0-20210414052358-79c7889f9f0a/go.mod h1:BfyvRFQTuaoNiyYe2NK/cNWlQjPdUPfOmDLcUhNQOqs=
 shanhu.io/smlvm v0.0.0-20200716024343-85bcec6c19bb h1:t4Nz0MuhHJb5pD1Zu5yd+JX4t5W4o8lwjvLxWb38ed8=
 shanhu.io/smlvm v0.0.0-20200716024343-85bcec6c19bb/go.mod h1:KOCjzSuapAURa19vUdtzl4Reak0k992Bcs+GD3Xqd1I=
 shanhu.io/smlvm v0.0.0-20210412023623-f8fb38ab4863 h1:p2HZtt3TtGF/5/BjgtQ4xMF3A302QpPYB0UFxzZomvg=

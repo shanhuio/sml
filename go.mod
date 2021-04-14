@@ -15,7 +15,7 @@ require (
 	golang.org/x/term v0.0.0-20210406210042-72f3dc4e9b72 // indirect
 	shanhu.io/aries v0.0.0-20210412013244-e8a3aa397f7e
 	shanhu.io/gcimporter v0.0.0-20200812070237-ef738bfd5e13 // indirect
-	shanhu.io/misc v0.0.0-20210414035648-8ff0bc799bd9
+	shanhu.io/misc v0.0.0-20210414052358-79c7889f9f0a
 	shanhu.io/smlvm v0.0.0-20210412023623-f8fb38ab4863 // indirect
 	shanhu.io/tools v0.0.0-20210412014647-d9b2701dfcb5
 )
