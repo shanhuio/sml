@@ -14,6 +14,7 @@ type context struct {
 	dir    string
 	env    []string
 	errLog io.Writer
+	mod    bool
 }
 
 func newContext(gopath, dir string, gomod bool) *context {
@@ -35,12 +36,13 @@ func newContext(gopath, dir string, gomod bool) *context {
 		dir:    dir,
 		env:    env,
 		errLog: os.Stderr,
+		mod:    gomod,
 	}
 }
 
-func (c *context) srcRoot() string {
-	return filepath.Join(c.gopath, "src")
-}
+func (c *context) gomod() bool { return c.mod }
+
+func (c *context) srcRoot() string { return filepath.Join(c.gopath, "src") }
 
 func (c *context) execPkgs(pkgs []*relPkg, tasks [][]string) error {
 	for _, args := range tasks {

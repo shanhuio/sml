@@ -76,7 +76,8 @@ func smake(c *context) error {
 		return err
 	}
 
-	scanRes, err := goload.ScanPkgs(rootPkg, nil)
+	scanOpts := &goload.ScanOptions{GoMod: c.gomod()}
+	scanRes, err := goload.ScanPkgs(rootPkg, scanOpts)
 	if err != nil {
 		return err
 	}
@@ -84,6 +85,10 @@ func smake(c *context) error {
 	pkgs, err := relPkgs(rootPkg, scanRes)
 	if err != nil {
 		return err
+	}
+	if len(pkgs) == 0 {
+		c.logln("no packages found")
+		return nil
 	}
 
 	if err := c.execPkgs(pkgs, [][]string{
