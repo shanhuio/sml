@@ -56,6 +56,8 @@ github.com/digitalocean/godo v1.58.0 h1:Iy8ULTvgCAxH8dlxZ54qRYpm5uTEb2deUqijywLH
 github.com/digitalocean/godo v1.58.0/go.mod h1:p7dOjjtSBqCTUksqtA5Fd3uaKs9kyTq2xcz76ulEJRU=
 github.com/digitalocean/godo v1.59.0 h1:v1/8/7v4e4ZwS1QAFgZ9f18UjgoCLrhMTjmOdrFjSWw=
 github.com/digitalocean/godo v1.59.0/go.mod h1:p7dOjjtSBqCTUksqtA5Fd3uaKs9kyTq2xcz76ulEJRU=
+github.com/digitalocean/godo v1.60.0 h1:o/vimtn/HKtYSakFAAZ59Zc5ASORd41S4z1X7pAXPn8=
+github.com/digitalocean/godo v1.60.0/go.mod h1:p7dOjjtSBqCTUksqtA5Fd3uaKs9kyTq2xcz76ulEJRU=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
@@ -261,6 +263,8 @@ golang.org/x/oauth2 v0.0.0-20210220000619-9bb904979d93/go.mod h1:KelEdhl1UZF7XfJ
 golang.org/x/oauth2 v0.0.0-20210313182246-cd4f82c27b84/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602 h1:0Ja1LBD+yisY6RWM/BH7TJVXWsSjs2VwBSmvSX4HdBc=
 golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
+golang.org/x/oauth2 v0.0.0-20210413134643-5e61552d6c78 h1:rPRtHfUb0UKZeZ6GH4K4Nt4YRbE9V1u+QZX5upZXqJQ=
+golang.org/x/oauth2 v0.0.0-20210413134643-5e61552d6c78/go.mod h1:KelEdhl1UZF7XfJ4dDtk6s++YSgaE7mD/BuKKDLBl4A=
 golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181108010431-42b317875d0f/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
 golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=
@@ -312,6 +316,8 @@ golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20210330210617-4fbd30eecc44/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57 h1:F5Gozwx4I1xtr/sr/8CFbb57iKi3297KFs0QDbGN60A=
 golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20210412220455-f1c623a9e750 h1:ZBu6861dZq7xBnG1bn5SRU0vA8nx42at4+kP07FMTog=
+golang.org/x/sys v0.0.0-20210412220455-f1c623a9e750/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 h1:v+OssWQX+hTHEmOBgwxdZxK4zHq3yOs8F9J7mk0PY8E=
 golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
@@ -507,8 +513,12 @@ shanhu.io/misc v0.0.0-20210218043436-02f22f712898 h1:sPcGwBSrMLdKQvjuLdZiAuI1mSq
 shanhu.io/misc v0.0.0-20210218043436-02f22f712898/go.mod h1:BfyvRFQTuaoNiyYe2NK/cNWlQjPdUPfOmDLcUhNQOqs=
 shanhu.io/misc v0.0.0-20210412000542-0629e6708c95 h1:iEfEJ2GqBhyXf8DD51mn6tUS4qsPRV2H+UIVeFo88uI=
 shanhu.io/misc v0.0.0-20210412000542-0629e6708c95/go.mod h1:BfyvRFQTuaoNiyYe2NK/cNWlQjPdUPfOmDLcUhNQOqs=
+shanhu.io/misc v0.0.0-20210414035648-8ff0bc799bd9 h1:HFABZ8yplAlJM+Ra38kBGzb7on1Ir7zsTkL1PVi/Iyw=
+shanhu.io/misc v0.0.0-20210414035648-8ff0bc799bd9/go.mod h1:BfyvRFQTuaoNiyYe2NK/cNWlQjPdUPfOmDLcUhNQOqs=
 shanhu.io/smlvm v0.0.0-20200716024343-85bcec6c19bb h1:t4Nz0MuhHJb5pD1Zu5yd+JX4t5W4o8lwjvLxWb38ed8=
 shanhu.io/smlvm v0.0.0-20200716024343-85bcec6c19bb/go.mod h1:KOCjzSuapAURa19vUdtzl4Reak0k992Bcs+GD3Xqd1I=
+shanhu.io/smlvm v0.0.0-20210412023623-f8fb38ab4863 h1:p2HZtt3TtGF/5/BjgtQ4xMF3A302QpPYB0UFxzZomvg=
+shanhu.io/smlvm v0.0.0-20210412023623-f8fb38ab4863/go.mod h1:DHk3t2mGCSQT+49f70lOLp9QYwf6zPJnXHJyP44PPtc=
 shanhu.io/tools v0.0.0-20200716024500-36b1fc6ac70e h1:WHFAc5+9Dsn2gbacK2uhzdQS71b/eoSxROdbpo0dhew=
 shanhu.io/tools v0.0.0-20200716024500-36b1fc6ac70e/go.mod h1:kx5WnU6HULmIBi1+0Y5keh7VY8FzB6eg2eio/oaYtNM=
 shanhu.io/tools v0.0.0-20210412014647-d9b2701dfcb5 h1:N1/NM1j4At/kub8gG6l46ofe5/m8uTVpqearKyvdcDs=
