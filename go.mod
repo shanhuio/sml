@@ -9,5 +9,5 @@ require (
 	shanhu.io/aries v0.0.0-20210430023937-65bd37e08d0c
 	shanhu.io/misc v0.0.0-20210430023721-d2f8cd1186fd
 	shanhu.io/smlvm v0.0.0-20210412023623-f8fb38ab4863
-	shanhu.io/tools v0.0.0-20210430205711-f27d5934e5a6
+	shanhu.io/tools v0.0.0-20210430212540-6ead68f41d09
 )

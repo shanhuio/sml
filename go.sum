@@ -490,3 +490,5 @@ shanhu.io/tools v0.0.0-20210414055433-132becefa60b h1:zrbVwV4BTXjkihm6Czx6VRR+fq
 shanhu.io/tools v0.0.0-20210414055433-132becefa60b/go.mod h1:Fy6R+bdwg5swGC04t4oRw5zUDoKDY1gNPPd7MDEHveg=
 shanhu.io/tools v0.0.0-20210430205711-f27d5934e5a6 h1:Y+PJ+g053lrRMbLmmLf+gXFpsCa0dPs+632eesWYRVA=
 shanhu.io/tools v0.0.0-20210430205711-f27d5934e5a6/go.mod h1:FHAl86rqqT+mNusI5+m/0+tZJvQJylqaSOJn9Fmx9KY=
+shanhu.io/tools v0.0.0-20210430212540-6ead68f41d09 h1:Vv0KxP++w909+YSIO0qZCt9hsbrD63ESFgnPaAGR0RM=
+shanhu.io/tools v0.0.0-20210430212540-6ead68f41d09/go.mod h1:FHAl86rqqT+mNusI5+m/0+tZJvQJylqaSOJn9Fmx9KY=
