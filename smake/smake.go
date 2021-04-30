@@ -9,8 +9,21 @@ import (
 	"shanhu.io/misc/goload"
 	"shanhu.io/misc/gomod"
 	"shanhu.io/sml/gotags"
+	"shanhu.io/smlvm/lexing"
 	"shanhu.io/tools/gocheck"
 )
+
+func smlchkPkg(c *context, pkg *relPkg) []*lexing.Error {
+	const textHeight = 300
+	const textWidth = 80
+
+	if !c.mod {
+		return gocheck.CheckAll(pkg.abs, textHeight, textWidth)
+	}
+
+	dir := filepath.Join(c.workDir(), filepath.FromSlash(pkg.rel))
+	return gocheck.ModCheckAll(dir, pkg.abs, textHeight, textWidth)
+}
 
 func smlchk(c *context, pkgs []*relPkg) error {
 	c.logln("smlchk")
@@ -19,8 +32,7 @@ func smlchk(c *context, pkgs []*relPkg) error {
 	const textWidth = 80
 
 	for _, pkg := range pkgs {
-		errs := gocheck.CheckAll(pkg.abs, textHeight, textWidth)
-		if len(errs) != 0 {
+		if errs := smlchkPkg(c, pkg); len(errs) != 0 {
 			for _, err := range errs {
 				c.logln(err)
 			}
