@@ -19,11 +19,12 @@ type context struct {
 
 func newContext(gopath, dir string, gomod bool) *context {
 	env := []string{fmt.Sprintf("GOPATH=%s", gopath)}
-	if s := os.Getenv("PATH"); s != "" {
-		env = append(env, fmt.Sprintf("PATH=%s", s))
-	}
-	if s := os.Getenv("HOME"); s != "" {
-		env = append(env, fmt.Sprintf("HOME=%s", s))
+	for _, v := range []string{
+		"PATH", "HOME", "SSH_AUTH_SOCK",
+	} {
+		if s := os.Getenv(v); s != "" {
+			env = append(env, fmt.Sprintf("%s=%s", v, s))
+		}
 	}
 	if !gomod {
 		env = append(env, "GO111MODULE=off")
