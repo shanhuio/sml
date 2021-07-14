@@ -134,10 +134,12 @@ func smake(c *context) error {
 		installCmd = append(installCmd, "-i")
 	}
 
-	if err := c.execPkgs(pkgs, [][]string{
-		{"gofmt", "-s", "-w", "-l"},
-		installCmd,
-	}); err != nil {
+	if err := c.execPkgs(pkgs, []string{
+		"gofmt", "-s", "-w", "-l",
+	}, nil); err != nil {
+		return err
+	}
+	if err := c.execPkgs(pkgs, installCmd, nil); err != nil {
 		return err
 	}
 
@@ -148,9 +150,9 @@ func smake(c *context) error {
 		return err
 	}
 
-	if err := c.execPkgs(pkgs, [][]string{
-		{"go", "vet"},
-	}); err != nil {
+	if err := c.execPkgs(pkgs, []string{
+		"go", "vet",
+	}, nil); err != nil {
 		return err
 	}
 

@@ -47,37 +47,46 @@ func (c *context) gomod() bool { return c.mod }
 
 func (c *context) srcRoot() string { return filepath.Join(c.gopath, "src") }
 
-func (c *context) execPkgs(pkgs []*relPkg, tasks [][]string) error {
-	for _, args := range tasks {
-		if len(args) == 0 {
-			continue
-		}
+type execConfig struct {
+	Stdout io.Writer
+	Stderr io.Writer
+}
 
-		line := strings.Join(args, " ")
-		fmt.Println(line)
+func (c *context) execPkgs(
+	pkgs []*relPkg, args []string, config *execConfig,
+) error {
+	line := strings.Join(args, " ")
+	fmt.Println(line)
 
-		if len(pkgs) > 0 {
-			for _, pkg := range pkgs {
-				args = append(args, pkg.rel)
-			}
-		}
-		p, err := exec.LookPath(args[0])
-		if err != nil {
-			return err
-		}
-		cmd := exec.Cmd{
-			Path:   p,
-			Args:   args,
-			Dir:    c.dir,
-			Stdout: os.Stdout,
-			Stderr: os.Stderr,
-			Env:    c.env,
-		}
-		if err := cmd.Run(); err != nil {
-			return err
+	if len(pkgs) > 0 {
+		for _, pkg := range pkgs {
+			args = append(args, pkg.rel)
 		}
 	}
-	return nil
+	p, err := exec.LookPath(args[0])
+	if err != nil {
+		return err
+	}
+
+	var stdout, stderr io.Writer
+	if config != nil {
+		stdout, stderr = config.Stdout, config.Stderr
+	}
+	if stdout == nil {
+		stdout = os.Stdout
+	}
+	if stderr == nil {
+		stderr = os.Stderr
+	}
+	cmd := exec.Cmd{
+		Path:   p,
+		Args:   args,
+		Dir:    c.dir,
+		Stdout: stdout,
+		Stderr: stderr,
+		Env:    c.env,
+	}
+	return cmd.Run()
 }
 
 func (c *context) logf(f string, args ...interface{}) {
