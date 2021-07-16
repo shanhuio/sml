@@ -9,7 +9,7 @@ import (
 	"shanhu.io/misc/goload"
 	"shanhu.io/misc/gomod"
 	"shanhu.io/sml/gotags"
-	"shanhu.io/smlvm/lexing"
+	"shanhu.io/text/lexing"
 	"shanhu.io/tools/gocheck"
 )
 
